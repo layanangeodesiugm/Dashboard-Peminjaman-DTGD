@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulir Peminjaman Fasilitas DTGD FT UGM</title>
+  <style>
+    body {
+      font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+      background-color: #ede7f6;
+      margin: 0;
+      padding: 20px 10px;
+      color: #202124;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      border-top: 10px solid #1a73e8;
+    }
+    .card-title h1 {
+      font-size: 24px;
+      margin: 0 0 10px 0;
+      color: #202124;
+    }
+    .card-section-title {
+      background: #1a73e8;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .required-star { color: #d93025; }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    input:focus, textarea:focus {
+      border-color: #1a73e8;
+      outline: none;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .info-box {
+      background: #e8f0fe;
+      border-left: 4px solid #1a73e8;
+      padding: 12px;
+      font-size: 13px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .info-box a {
+      color: #1a73e8;
+      font-weight: bold;
+    }
+    .btn-submit {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-submit:hover { background-color: #1557b0; }
+    .btn-submit:disabled { background-color: #a8c7fa; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header Card -->
+    <div class="card">
+      <div class="card-title">
+        <h1>Formulir Peminjaman Fasilitas di Departemen Teknik Geodesi FT UGM</h1>
+      </div>
+      <p style="font-size:13px; color:#5f6368;">Silakan isi formulir peminjaman alat laboratorium dan sarana prasarana dengan lengkap.</p>
+    </div>
+
+    <!-- Informasi Template Surat -->
+    <div class="card" style="border-top:none;">
+      <div class="info-box">
+        <b>TEMPLATE SURAT PEMINJAMAN:</b><br>
+        Template surat permohonan silakan ambil di : 
+        <a href="https://ugm.id/formatsuratpeminjamanDTGD" target="_blank">ugm.id/formatsuratpeminjamanDTGD</a>.<br>
+        Jika sudah selesai mengisi surat permohonan, silakan upload pada form di bawah.
+      </div>
+    </div>
+
+    <!-- Isian Form -->
+    <form id="peminjamanForm" onsubmit="handleFormSubmit(event)">
+      <div class="card" style="border-top:none;">
+        <div class="card-section-title">Isian Formulir Peminjaman Alat dan Bahan</div>
+
+        <div class="form-group">
+          <label>Nama Peminjam <span class="required-star">*</span></label>
+          <input type="text" id="nama" required placeholder="Jawaban Anda">
+        </div>
+
+        <div class="form-group">
+          <label>NIP/NIKA/NIM/KTP <span class="required-star">*</span></label>
+          <input type="text" id="nip" required placeholder="Jawaban Anda">
+        </div>
+
+        <div class="form-group">
+          <label>Alamat E-mail (untuk dikirim surat balasan) <span class="required-star">*</span></label>
+          <input type="email" id="email" required placeholder="Jawaban Anda">
+        </div>
+
+        <div class="form-group">
+          <label>No Handphone <span class="required-star">*</span></label>
+          <input type="tel" id="noHp" required placeholder="Jawaban Anda">
+        </div>
+
+        <div class="form-group">
+          <label>Mulai Peminjaman (DD-MM-YYYY) <span class="required-star">*</span></label>
+          <input type="date" id="tglMulai" required>
+        </div>
+
+        <div class="form-group">
+          <label>Selesai Peminjaman (DD-MM-YYYY) <span class="required-star">*</span></label>
+          <input type="date" id="tglSelesai" required>
+        </div>
+
+        <div class="form-group">
+          <label>Jenis Peminjaman Fasilitas <span class="required-star">*</span></label>
+          <label class="radio-option">
+            <input type="radio" name="jenisFasilitas" value="Laboratorium (Alat praktikum, Komputer, dll)" required>
+            Laboratorium (Alat praktikum, Komputer, dll)
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="jenisFasilitas" value="Sarana Prasarana (Ruangan, LCD, Alat Sound, Mobil, dll)">
+            Sarana Prasarana (Ruangan, LCD, Alat Sound, Mobil, dll)
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Jenis Alat/Ruang/Fasilitas lain yang dipinjam (tulis secara detail, misal GPS, Ruang Kelas III.4, dll) <span class="required-star">*</span></label>
+          <textarea id="detailFasilitas" rows="3" required placeholder="Jawaban Anda"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Upload Surat Peminjaman (Format PDF) <span class="required-star">*</span></label>
+          <input type="file" id="suratPdf" accept="application/pdf" required>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnSubmit">Kirim Permohonan</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyuCgb2lZX4jQs7I1ckX6dElENTED3Ox-QrIM8zpxzIxakssNebDYbVCh3Uuao9n5RliA/exec";
+
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.innerText = "⏳ Mengirim data & mengupload PDF...";
+
+      try {
+        const pdfFileInput = document.getElementById('suratPdf');
+        let pdfBase64 = "";
+        let pdfFileName = "";
+
+        if (pdfFileInput.files.length > 0) {
+          const file = pdfFileInput.files[0];
+          pdfFileName = file.name;
+          pdfBase64 = await convertFileToBase64(file);
+        }
+
+        // Format tanggal ke DD-MM-YYYY
+        const rawMulai = document.getElementById('tglMulai').value.split('-');
+        const formattedMulai = rawMulai[2] + '-' + rawMulai[1] + '-' + rawMulai[0];
+
+        const rawSelesai = document.getElementById('tglSelesai').value.split('-');
+        const formattedSelesai = rawSelesai[2] + '-' + rawSelesai[1] + '-' + rawSelesai[0];
+
+        const jenisFasilitasEl = document.querySelector('input[name="jenisFasilitas"]:checked');
+
+        const payload = {
+          action: 'submitFormPeminjaman',
+          data: {
+            nama: document.getElementById('nama').value,
+            nip: document.getElementById('nip').value,
+            email: document.getElementById('email').value,
+            noHp: document.getElementById('noHp').value,
+            tglMulai: formattedMulai,
+            tglSelesai: formattedSelesai,
+            jenisFasilitas: jenisFasilitasEl ? jenisFasilitasEl.value : '',
+            detailFasilitas: document.getElementById('detailFasilitas').value,
+            pdfBase64: pdfBase64,
+            pdfFileName: pdfFileName
+          }
+        };
+
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          alert(result.data);
+          document.getElementById('peminjamanForm').reset();
+        } else {
+          alert("Gagal: " + result.message);
+        }
+
+      } catch (err) {
+        alert("Terjadi kesalahan: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Kirim Permohonan";
+      }
+    }
+
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>
