@@ -3,34 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Peminjaman Fasilitas - Admin</title>
+  <title>Daftar Peminjaman Fasilitas</title>
   
-  <!-- CSS Styling -->
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
     
-    .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
-    .header h2 { color: #1a73e8; margin: 0; }
-    .btn-refresh { background-color: #5c6bc0; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .btn-refresh:hover { background-color: #3f51b5; }
+    .container { max-width: 1280px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header h2 { color: #1a73e8; margin: 0; font-size: 22px; }
+    .btn-refresh { background-color: #5f6368; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .btn-refresh:hover { background-color: #45474a; }
 
     /* Filter & Search */
-    .filter-section { display: flex; gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; align-items: center; }
+    .filter-section { display: flex; gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border: 1px solid #e0e0e0; border-radius: 6px; align-items: center; }
     .filter-group { display: flex; flex-direction: column; gap: 5px; }
-    .filter-group label { font-size: 12px; font-weight: bold; color: #666; }
-    select, input[type="text"] { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; }
+    .filter-group label { font-size: 12px; font-weight: bold; color: #333; }
+    select, input[type="text"] { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    .btn-reset { background-color: #f1f3f4; border: 1px solid #ccc; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 17px; }
 
-    /* Table */
+    /* Table Styling */
     .table-container { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { background-color: #1a73e8; color: white; text-align: left; padding: 12px 10px; }
-    td { padding: 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
-    tr:hover { background-color: #f5f5f5; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background-color: #1a73e8; color: white; text-align: center; padding: 10px; border: 1px solid #1557b0; }
+    td { padding: 10px; border: 1px solid #e0e0e0; vertical-align: top; }
+    tr:nth-child(even) { background-color: #fafafa; }
 
-    .btn-action { background-color: #0288d1; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-    .btn-action:hover { background-color: #01579b; }
+    /* Unique Buttons in Table */
+    .btn-pdf-link { display: block; text-align: center; border: 1px solid #d32f2f; color: #d32f2f; background: #fff; padding: 4px 8px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-bottom: 5px; }
+    .btn-pdf-link:hover { background: #ffebee; }
+    
+    .btn-edit-ttd { display: block; width: 100%; text-align: center; border: 1px solid #fbc02d; color: #333; background: #fff; padding: 4px 8px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+    .btn-edit-ttd:hover { background: #fffde7; }
+
+    .btn-keputusan { background-color: #1a73e8; color: white; border: none; padding: 6px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .btn-keputusan:hover { background-color: #1557b0; }
+
+    .badge-status { display: inline-block; padding: 4px 16px; border-radius: 4px; color: white; font-weight: bold; text-align: center; background-color: #757575; }
 
     /* Modal Overlay & Box */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
@@ -55,7 +64,7 @@
     .preview-workspace { flex: 1; background: #e0e0e0; display: flex; flex-direction: column; align-items: center; padding: 15px; overflow-y: auto; position: relative; }
     .pdf-nav { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; background: white; padding: 6px 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    /* Canvas Container for Drag and Drop Overlay */
+    /* Canvas Container */
     .pdf-canvas-container { position: relative; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: white; margin: auto; }
     #pdfCanvas { display: block; }
 
@@ -67,7 +76,7 @@
     #dragNote { font-family: Arial, sans-serif; color: #000; white-space: pre-wrap; word-break: break-word; line-height: 1.25; }
   </style>
 
-  <!-- External Libraries: PDF.js & PDF-Lib -->
+  <!-- External Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
@@ -79,7 +88,7 @@
       <button class="btn-refresh" onclick="loadTableData()">↻ Refresh Data</button>
     </div>
 
-    <!-- Filter & Pencarian -->
+    <!-- Filter Section -->
     <div class="filter-section">
       <div class="filter-group">
         <label>Filter Status:</label>
@@ -94,6 +103,7 @@
         <label>Cari Nama / Fasilitas:</label>
         <input type="text" id="searchQuery" oninput="applyFilters()" placeholder="Ketik pencarian...">
       </div>
+      <button class="btn-reset" onclick="resetFilters()">Reset Filter</button>
     </div>
 
     <!-- Tabel Data -->
@@ -101,14 +111,14 @@
       <table>
         <thead>
           <tr>
-            <th>No</th>
+            <th style="width: 40px;">No</th>
             <th>Nama & Kontak</th>
             <th>Detail Fasilitas & Tanggal</th>
-            <th>Surat PDF</th>
+            <th style="width: 130px;">Surat PDF</th>
             <th>Keputusan Pengurus</th>
             <th>Email CC</th>
-            <th>Status</th>
-            <th>Aksi</th>
+            <th style="width: 100px;">Status</th>
+            <th style="width: 110px;">Aksi</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -127,25 +137,21 @@
       </div>
       <div class="modal-body">
         
-        <!-- Sidebar Kontrol (Kiri) -->
+        <!-- Sidebar Controls -->
         <div class="sidebar-controls">
           
-          <!-- Langkah 1 -->
           <div class="control-step">
             <button class="btn-step btn-blue" onclick="fetchPdfFromServer()">1. Tarik PDF dari Server</button>
           </div>
 
-          <!-- Langkah 2: TTD -->
           <div class="control-step">
             <span class="step-title">2. URL Gambar TTD (Google Drive)</span>
             <input type="text" id="ttdUrlInput" placeholder="https://drive.google.com/file/d/..." style="width:100%; margin-bottom:8px;">
             <button class="btn-step btn-green" onclick="fetchSignature()">Tampilkan TTD</button>
-            
             <label style="font-size:11px; margin-top:8px; display:block;">Atur Ukuran TTD:</label>
             <input type="range" id="ttdScale" min="30" max="300" value="120" style="width:100%;" oninput="resizeSignature()">
           </div>
 
-          <!-- Langkah 3: Teks / Tanggal Singkat -->
           <div class="control-step">
             <span class="step-title">3. Tambah Teks / Tanggal</span>
             <div style="display:flex; gap:5px; margin-bottom:8px;">
@@ -156,24 +162,21 @@
             <input type="range" id="dateFontSize" min="8" max="36" value="14" style="width:100%;" oninput="resizeDate()">
           </div>
 
-          <!-- Langkah 4: Catatan Approval (Multi-Line) -->
           <div class="control-step">
             <span class="step-title">4. Tambah Catatan Approval</span>
             <textarea id="noteInput" rows="3" style="width:100%; font-size:12px; margin-bottom:8px;" placeholder="Tulis catatan di sini... (Tekan Enter untuk baris baru)"></textarea>
             <button class="btn-step btn-blue" style="background-color:#0288d1;" onclick="applyNoteToCanvas()">Munculkan Catatan</button>
-
             <label style="font-size:11px; margin-top:8px; display:block;">Atur Ukuran Catatan:</label>
             <input type="range" id="noteFontSize" min="8" max="36" value="12" style="width:100%;" oninput="resizeNote()">
           </div>
 
-          <!-- Langkah 5: Simpan ke Server -->
           <div class="control-step">
             <button class="btn-step btn-red" onclick="saveSignedPdfToServer()">💾 Simpan PDF ke Server</button>
           </div>
 
         </div>
 
-        <!-- Preview PDF Workspace (Kanan) -->
+        <!-- Preview PDF Workspace -->
         <div class="preview-workspace">
           <div class="pdf-nav">
             <button onclick="changePage(-1)">← Prev</button>
@@ -181,19 +184,11 @@
             <button onclick="changePage(1)">Next →</button>
           </div>
 
-          <!-- Canvas Preview + Draggable Items -->
           <div class="pdf-canvas-container" id="canvasContainer">
             <canvas id="pdfCanvas"></canvas>
             
-            <!-- Draggable 1: TTD -->
-            <div id="dragSignature" class="draggable-item">
-              <img id="sigImg" src="" alt="TTD">
-            </div>
-
-            <!-- Draggable 2: Tanggal / Teks Singkat -->
+            <div id="dragSignature" class="draggable-item"><img id="sigImg" src="" alt="TTD"></div>
             <div id="dragDate" class="draggable-item"></div>
-
-            <!-- Draggable 3: Catatan Multi-Line -->
             <div id="dragNote" class="draggable-item"></div>
           </div>
         </div>
@@ -206,7 +201,6 @@
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyuCgb2lZX4jQs7I1ckX6dElENTED3Ox-QrIM8zpxzIxakssNebDYbVCh3Uuao9n5RliA/exec";
 
-    // Setup PDF.js Worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
     let allData = [];
@@ -216,10 +210,9 @@
     let pdfBytesArrayBuffer = null;
     let activePdfFileName = "Dokumen.pdf";
 
-    // --- 1. MEMUAT DATA TABEL ---
     async function loadTableData() {
       const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#777;">Memuat data...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#777;">Memuat data dari server...</td></tr>';
 
       try {
         const response = await fetch(GAS_URL, {
@@ -248,15 +241,27 @@
 
       tbody.innerHTML = data.map((item, index) => `
         <tr>
-          <td>${index + 1}</td>
-          <td><b>${item.nama}</b><br><small>NIP/NIM: ${item.nip}<br>HP: ${item.noHp}<br>Email: ${item.email}</small></td>
-          <td><b>${item.jenisFasilitas}</b><br><small>${item.detailFasilitas}<br><b>Tgl:</b> ${item.tglMulai} s/d ${item.tglSelesai}</small></td>
-          <td>${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank">Lihat PDF</a>` : '-'}</td>
-          <td>${item.keputusan || '-'}</td>
-          <td>${item.emailCc || '-'}</td>
-          <td><span style="padding: 2px 6px; border-radius: 4px; background: ${item.statusOption === 'Yes' ? '#c8e6c9' : item.statusOption === 'No' ? '#ffcdd2' : '#fff9c4'}; font-weight: bold;">${item.statusOption || 'Pending'}</span></td>
+          <td style="text-align:center;">${index + 1}</td>
           <td>
-            <button class="btn-action" onclick="openPdfModal(${item.rowIndex})">🖊 Edit & TTD PDF</button>
+            <b>${item.colA}</b><br>
+            <small style="word-break:break-all; color:#1a73e8;">${item.colB}</small><br>
+            <small>📞 ${item.colC}</small>
+          </td>
+          <td>
+            <b>${item.colD}</b><br>
+            <small>${item.colE}</small>
+          </td>
+          <td>
+            ${item.colB ? `<a href="${item.colB}" target="_blank" class="btn-pdf-link">Lihat PDF</a>` : '-'}
+            <button class="btn-edit-ttd" onclick="openPdfModal(${item.rowIndex})">Edit TTD</button>
+          </td>
+          <td>${item.colF || '-'}</td>
+          <td>${item.colG || '-'}</td>
+          <td style="text-align:center;">
+            <span class="badge-status">${item.colH || 'Pending'}</span>
+          </td>
+          <td style="text-align:center;">
+            <button class="btn-keputusan" onclick="openPdfModal(${item.rowIndex})">Keputusan</button>
           </td>
         </tr>
       `).join('');
@@ -267,23 +272,27 @@
       const query = document.getElementById('searchQuery').value.toLowerCase();
 
       const filtered = allData.filter(item => {
-        const matchStatus = (status === 'Semua Status') || (item.statusOption === status);
-        const matchQuery = item.nama.toLowerCase().includes(query) || item.detailFasilitas.toLowerCase().includes(query);
+        const matchStatus = (status === 'Semua Status') || (item.colH === status);
+        const matchQuery = item.colA.toLowerCase().includes(query) || item.colC.toLowerCase().includes(query) || item.colG.toLowerCase().includes(query);
         return matchStatus && matchQuery;
       });
       renderTable(filtered);
     }
 
-    // --- 2. MODAL & PREVIEW PDF ---
+    function resetFilters() {
+      document.getElementById('filterStatus').value = 'Semua Status';
+      document.getElementById('searchQuery').value = '';
+      renderTable(allData);
+    }
+
+    // Modal & PDF rendering
     function openPdfModal(rowIndex) {
       activeRowIndex = rowIndex;
       document.getElementById('pdfModal').style.display = 'flex';
-      
       resetOverlays();
       document.getElementById('pdfCanvas').getContext('2d').clearRect(0, 0, 500, 700);
       document.getElementById('pageNum').innerText = "1";
       document.getElementById('pageCount').innerText = "?";
-      
       fetchPdfFromServer();
     }
 
@@ -301,9 +310,7 @@
 
         if (result.status === 'success') {
           activePdfFileName = result.data.fileName;
-          const base64Data = result.data.base64;
-          
-          const binaryString = atob(base64Data);
+          const binaryString = atob(result.data.base64);
           const bytes = new Uint8Array(binaryString.length);
           for (let i = 0; i < binaryString.length; i++) {
             bytes[i] = binaryString.charCodeAt(i);
@@ -345,7 +352,7 @@
       }
     }
 
-    // --- 3. LOGIKA TTD, TANGGAL & CATATAN ---
+    // TTD, Tanggal & Catatan Controls
     async function fetchSignature() {
       const driveUrl = document.getElementById('ttdUrlInput').value;
       if (!driveUrl) return alert("Masukkan URL Gambar TTD terlebih dahulu.");
@@ -375,11 +382,9 @@
     }
 
     function resizeSignature() {
-      const width = document.getElementById('ttdScale').value;
-      document.getElementById('dragSignature').style.width = width + 'px';
+      document.getElementById('dragSignature').style.width = document.getElementById('ttdScale').value + 'px';
     }
 
-    // A. Tanggal Singkat
     function applyDateToCanvas() {
       const text = document.getElementById('dateInput').value;
       if (!text.trim()) return alert("Masukkan teks/tanggal terlebih dahulu!");
@@ -393,11 +398,9 @@
     }
 
     function resizeDate() {
-      const fontSize = document.getElementById('dateFontSize').value;
-      document.getElementById('dragDate').style.fontSize = fontSize + 'px';
+      document.getElementById('dragDate').style.fontSize = document.getElementById('dateFontSize').value + 'px';
     }
 
-    // B. Catatan Multi-Line
     function applyNoteToCanvas() {
       const text = document.getElementById('noteInput').value;
       if (!text.trim()) return alert("Tuliskan catatan terlebih dahulu!");
@@ -411,8 +414,7 @@
     }
 
     function resizeNote() {
-      const fontSize = document.getElementById('noteFontSize').value;
-      document.getElementById('dragNote').style.fontSize = fontSize + 'px';
+      document.getElementById('dragNote').style.fontSize = document.getElementById('noteFontSize').value + 'px';
     }
 
     function resetOverlays() {
@@ -421,74 +423,61 @@
       document.getElementById('dragNote').style.display = 'none';
     }
 
-    // --- 4. SISTEM DRAG & DROP UNTUK KETIGA ELEMEN ---
+    // Drag and drop engine
     makeElementDraggable(document.getElementById('dragSignature'));
     makeElementDraggable(document.getElementById('dragDate'));
     makeElementDraggable(document.getElementById('dragNote'));
 
     function makeElementDraggable(elmnt) {
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      elmnt.onmousedown = dragMouseDown;
-
-      function dragMouseDown(e) {
+      elmnt.onmousedown = function(e) {
         e.preventDefault();
         pos3 = e.clientX;
         pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-      }
+        document.onmouseup = function() {
+          document.onmouseup = null;
+          document.onmousemove = null;
+        };
+        document.onmousemove = function(e) {
+          e.preventDefault();
+          pos1 = pos3 - e.clientX;
+          pos2 = pos4 - e.clientY;
+          pos3 = e.clientX;
+          pos4 = e.clientY;
 
-      function elementDrag(e) {
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
+          const container = document.getElementById('canvasContainer');
+          let newTop = elmnt.offsetTop - pos2;
+          let newLeft = elmnt.offsetLeft - pos1;
 
-        const container = document.getElementById('canvasContainer');
-        let newTop = elmnt.offsetTop - pos2;
-        let newLeft = elmnt.offsetLeft - pos1;
-
-        if (newLeft >= 0 && newLeft + elmnt.offsetWidth <= container.offsetWidth) {
-          elmnt.style.left = newLeft + "px";
-        }
-        if (newTop >= 0 && newTop + elmnt.offsetHeight <= container.offsetHeight) {
-          elmnt.style.top = newTop + "px";
-        }
-      }
-
-      function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
+          if (newLeft >= 0 && newLeft + elmnt.offsetWidth <= container.offsetWidth) {
+            elmnt.style.left = newLeft + "px";
+          }
+          if (newTop >= 0 && newTop + elmnt.offsetHeight <= container.offsetHeight) {
+            elmnt.style.top = newTop + "px";
+          }
+        };
+      };
     }
 
-    // --- 5. SIMPAN HASIL EDITAN KE PDF REAL (PDF-LIB) ---
+    // Save Signed PDF Engine
     async function saveSignedPdfToServer() {
       if (!pdfBytesArrayBuffer) return alert("Silakan tarik PDF terlebih dahulu!");
 
       try {
         const { PDFDocument, rgb } = PDFLib;
         const pdfDocLib = await PDFDocument.load(pdfBytesArrayBuffer);
-        const pages = pdfDocLib.getPages();
-        const page = pages[currentPageNum - 1];
+        const page = pdfDocLib.getPages()[currentPageNum - 1];
 
         const canvas = document.getElementById('pdfCanvas');
         const scaleX = page.getWidth() / canvas.width;
         const scaleY = page.getHeight() / canvas.height;
 
-        // A. Embed TTD (Jika Ditampilkan)
+        // Embed TTD
         const dragSig = document.getElementById('dragSignature');
         if (dragSig.style.display !== 'none') {
           const sigImgEl = document.getElementById('sigImg');
           const imageBytes = await fetch(sigImgEl.src).then(res => res.arrayBuffer());
-          
-          let embeddedImage;
-          if (sigImgEl.src.includes("image/png")) {
-            embeddedImage = await pdfDocLib.embedPng(imageBytes);
-          } else {
-            embeddedImage = await pdfDocLib.embedJpg(imageBytes);
-          }
+          const embeddedImage = sigImgEl.src.includes("image/png") ? await pdfDocLib.embedPng(imageBytes) : await pdfDocLib.embedJpg(imageBytes);
 
           const sigX = dragSig.offsetLeft * scaleX;
           const sigW = dragSig.offsetWidth * scaleX;
@@ -498,63 +487,41 @@
           page.drawImage(embeddedImage, { x: sigX, y: sigY, width: sigW, height: sigH });
         }
 
-        // B. Embed Tanggal / Teks Singkat (Jika Ditampilkan)
+        // Embed Tanggal
         const dragDate = document.getElementById('dragDate');
         if (dragDate.style.display !== 'none') {
           const rawDate = document.getElementById('dateInput').value;
           const fontSize = parseFloat(document.getElementById('dateFontSize').value) * scaleY;
-
           const dateX = dragDate.offsetLeft * scaleX;
           const dateY = page.getHeight() - (dragDate.offsetTop * scaleY) - (fontSize * 0.85);
 
-          page.drawText(rawDate, {
-            x: dateX,
-            y: dateY,
-            size: fontSize,
-            color: rgb(0, 0, 0)
-          });
+          page.drawText(rawDate, { x: dateX, y: dateY, size: fontSize, color: rgb(0, 0, 0) });
         }
 
-        // C. Embed Catatan Multi-Line (Jika Ditampilkan)
+        // Embed Catatan Multi-Line
         const dragNote = document.getElementById('dragNote');
         if (dragNote.style.display !== 'none') {
           const rawNote = document.getElementById('noteInput').value;
           const fontSize = parseFloat(document.getElementById('noteFontSize').value) * scaleY;
           const lineHeight = fontSize * 1.25;
-
           const noteX = dragNote.offsetLeft * scaleX;
-          const lines = rawNote.split('\n');
 
-          lines.forEach((line, index) => {
+          rawNote.split('\n').forEach((line, index) => {
             const noteY = page.getHeight() - (dragNote.offsetTop * scaleY) - (fontSize * 0.85) - (index * lineHeight);
-            page.drawText(line, {
-              x: noteX,
-              y: noteY,
-              size: fontSize,
-              color: rgb(0, 0, 0)
-            });
+            page.drawText(line, { x: noteX, y: noteY, size: fontSize, color: rgb(0, 0, 0) });
           });
         }
 
-        // Export PDF & Convert to Base64
         const pdfBytes = await pdfDocLib.save();
         let binary = '';
         const bytes = new Uint8Array(pdfBytes);
-        for (let i = 0; i < bytes.byteLength; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        const pdfBase64 = btoa(binary);
+        for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
 
-        // Kirim ke Google Apps Script
         const response = await fetch(GAS_URL, {
           method: 'POST',
           body: JSON.stringify({
             action: 'saveSignedPdf',
-            data: {
-              rowIndex: activeRowIndex,
-              base64Data: pdfBase64,
-              fileName: activePdfFileName
-            }
+            data: { rowIndex: activeRowIndex, base64Data: btoa(binary), fileName: activePdfFileName }
           })
         });
 
@@ -568,7 +535,7 @@
         }
 
       } catch (err) {
-        alert("Terjadi kesalahan saat memproses PDF: " + err.message);
+        alert("Terjadi kesalahan: " + err.message);
       }
     }
 
