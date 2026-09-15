@@ -3,181 +3,534 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulir Peminjaman Fasilitas DTGD FT UGM</title>
+  <title>Daftar Peminjaman Fasilitas - Admin</title>
+  
+  <!-- CSS Styling -->
   <style>
-    body { font-family: 'Roboto', 'Segoe UI', Arial, sans-serif; background-color: #ede7f6; margin: 0; padding: 20px 10px; color: #202124; }
-    .container { max-width: 640px; margin: 0 auto; }
-    .card { background: #ffffff; border-radius: 8px; padding: 24px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); border-top: 10px solid #1a73e8; }
-    .card-title h1 { font-size: 24px; margin: 0 0 10px 0; }
-    .card-section-title { background: #1a73e8; color: white; padding: 10px 16px; border-radius: 4px; font-weight: bold; font-size: 15px; margin-bottom: 20px; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
-    .required-star { color: #d93025; }
-    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], textarea { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-    input:focus, textarea:focus { border-color: #1a73e8; outline: none; }
-    .radio-option { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
-    .info-box { background: #e8f0fe; border-left: 4px solid #1a73e8; padding: 12px; font-size: 13px; border-radius: 4px; }
-    .info-box a { color: #1a73e8; font-weight: bold; }
-    .btn-submit { background-color: #1a73e8; color: white; border: none; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; }
-    .btn-submit:hover { background-color: #1557b0; }
-    .btn-submit:disabled { background-color: #a8c7fa; cursor: not-allowed; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+    
+    .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
+    .header h2 { color: #1a73e8; margin: 0; }
+    .btn-refresh { background-color: #5c6bc0; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .btn-refresh:hover { background-color: #3f51b5; }
+
+    /* Filter & Search */
+    .filter-section { display: flex; gap: 15px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; align-items: center; }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; }
+    .filter-group label { font-size: 12px; font-weight: bold; color: #666; }
+    select, input[type="text"] { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; }
+
+    /* Table */
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background-color: #1a73e8; color: white; text-align: left; padding: 12px 10px; }
+    td { padding: 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+    tr:hover { background-color: #f5f5f5; }
+
+    .btn-action { background-color: #0288d1; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-action:hover { background-color: #01579b; }
+
+    /* Modal Overlay & Box */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-box { background: #fff; width: 95%; max-width: 1200px; height: 90vh; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    
+    .modal-header { background: #ffc107; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 16px; color: #333; }
+    .modal-close { cursor: pointer; font-size: 20px; font-weight: bold; border: none; background: none; }
+
+    .modal-body { display: flex; flex: 1; overflow: hidden; }
+
+    /* Sidebar Controls */
+    .sidebar-controls { width: 300px; background: #fafafa; padding: 15px; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+    .control-step { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; }
+    .step-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #2e7d32; display: block; }
+    
+    .btn-step { width: 100%; padding: 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
+    .btn-blue { background-color: #1a73e8; } .btn-blue:hover { background-color: #1557b0; }
+    .btn-green { background-color: #2e7d32; } .btn-green:hover { background-color: #1b5e20; }
+    .btn-red { background-color: #d32f2f; } .btn-red:hover { background-color: #c62828; }
+
+    /* Preview Workspace */
+    .preview-workspace { flex: 1; background: #e0e0e0; display: flex; flex-direction: column; align-items: center; padding: 15px; overflow-y: auto; position: relative; }
+    .pdf-nav { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; background: white; padding: 6px 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    /* Canvas Container for Drag and Drop Overlay */
+    .pdf-canvas-container { position: relative; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background: white; margin: auto; }
+    #pdfCanvas { display: block; }
+
+    /* Draggable Overlays */
+    .draggable-item { position: absolute; cursor: move; border: 1px dashed #1a73e8; padding: 4px; background: rgba(255,255,255,0.7); user-select: none; display: none; }
+    .draggable-item:hover { border-color: #d32f2f; }
+    #dragSignature img { width: 100%; height: 100%; display: block; }
+    #dragText { font-family: Arial, sans-serif; color: #000; white-space: pre-wrap; word-break: break-word; font-weight: normal; line-height: 1.25; }
   </style>
+
+  <!-- External Libraries: PDF.js & PDF-Lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
 <body>
 
   <div class="container">
-    <div class="card">
-      <div class="card-title">
-        <h1>Formulir Peminjaman Fasilitas di Departemen Teknik Geodesi FT UGM</h1>
-      </div>
-      <p style="font-size:13px; color:#5f6368;">Silakan isi formulir peminjaman alat laboratorium dan sarana prasarana dengan lengkap.</p>
+    <div class="header">
+      <h2>Daftar Peminjaman Fasilitas</h2>
+      <button class="btn-refresh" onclick="loadTableData()">↻ Refresh Data</button>
     </div>
 
-    <div class="card" style="border-top:none;">
-      <div class="info-box">
-        <b>TEMPLATE SURAT PEMINJAMAN:</b><br>
-        Template surat permohonan silakan ambil di : 
-        <a href="https://ugm.id/formatsuratpeminjamanDTGD" target="_blank">ugm.id/formatsuratpeminjamanDTGD</a>.<br>
-        Jika sudah selesai mengisi surat permohonan, silakan upload pada form di bawah.
+    <!-- Filter & Pencarian -->
+    <div class="filter-section">
+      <div class="filter-group">
+        <label>Filter Status:</label>
+        <select id="filterStatus" onchange="applyFilters()">
+          <option value="Semua Status">Semua Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Cari Nama / Fasilitas:</label>
+        <input type="text" id="searchQuery" oninput="applyFilters()" placeholder="Ketik pencarian...">
       </div>
     </div>
 
-    <form id="peminjamanForm" onsubmit="handleFormSubmit(event)">
-      <div class="card" style="border-top:none;">
-        <div class="card-section-title">Isian Formulir Peminjaman Alat dan Bahan</div>
-
-        <div class="form-group">
-          <label>Nama Peminjam <span class="required-star">*</span></label>
-          <input type="text" id="nama" required placeholder="Jawaban Anda">
-        </div>
-
-        <div class="form-group">
-          <label>NIP/NIKA/NIM/KTP <span class="required-star">*</span></label>
-          <input type="text" id="nip" required placeholder="Jawaban Anda">
-        </div>
-
-        <div class="form-group">
-          <label>Alamat E-mail (untuk dikirim surat balasan) <span class="required-star">*</span></label>
-          <input type="email" id="email" required placeholder="Jawaban Anda">
-        </div>
-
-        <div class="form-group">
-          <label>No Handphone <span class="required-star">*</span></label>
-          <input type="tel" id="noHp" required placeholder="Jawaban Anda">
-        </div>
-
-        <div class="form-group">
-          <label>Mulai Peminjaman (DD-MM-YYYY) <span class="required-star">*</span></label>
-          <input type="date" id="tglMulai" required>
-        </div>
-
-        <div class="form-group">
-          <label>Selesai Peminjaman (DD-MM-YYYY) <span class="required-star">*</span></label>
-          <input type="date" id="tglSelesai" required>
-        </div>
-
-        <div class="form-group">
-          <label>Jenis Peminjaman Fasilitas <span class="required-star">*</span></label>
-          <label class="radio-option">
-            <input type="radio" name="jenisFasilitas" value="Laboratorium (Alat praktikum, Komputer, dll)" required>
-            Laboratorium (Alat praktikum, Komputer, dll)
-          </label>
-          <label class="radio-option">
-            <input type="radio" name="jenisFasilitas" value="Sarana Prasarana (Ruangan, LCD, Alat Sound, Mobil, dll)">
-            Sarana Prasarana (Ruangan, LCD, Alat Sound, Mobil, dll)
-          </label>
-        </div>
-
-        <div class="form-group">
-          <label>Jenis Alat/Ruang/Fasilitas lain yang dipinjam <span class="required-star">*</span></label>
-          <textarea id="detailFasilitas" rows="3" required placeholder="Jawaban Anda"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Upload Surat Peminjaman (Format PDF) <span class="required-star">*</span></label>
-          <input type="file" id="suratPdf" accept="application/pdf" required>
-        </div>
-
-        <button type="submit" class="btn-submit" id="btnSubmit">Kirim Permohonan</button>
-      </div>
-    </form>
+    <!-- Tabel Data -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama & Kontak</th>
+            <th>Detail Fasilitas & Tanggal</th>
+            <th>Surat PDF</th>
+            <th>Keputusan Pengurus</th>
+            <th>Email CC</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="8" style="text-align:center; color:#777;">Memuat data dari server...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
+  <!-- ==================== MODAL EDIT & TTD PDF ==================== -->
+  <div class="modal-overlay" id="pdfModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>Edit & Tanda Tangan PDF</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Sidebar Kontrol (Kiri) -->
+        <div class="sidebar-controls">
+          
+          <!-- Langkah 1 -->
+          <div class="control-step">
+            <button class="btn-step btn-blue" onclick="fetchPdfFromServer()">1. Tarik PDF dari Server</button>
+          </div>
+
+          <!-- Langkah 2: TTD -->
+          <div class="control-step">
+            <span class="step-title">2. URL Gambar TTD (Google Drive)</span>
+            <input type="text" id="ttdUrlInput" placeholder="https://drive.google.com/file/d/..." style="width:100%; margin-bottom:8px;">
+            <button class="btn-step btn-green" onclick="fetchSignature()">Tampilkan TTD</button>
+            
+            <label style="font-size:11px; margin-top:10px; display:block;">Atur Ukuran TTD:</label>
+            <input type="range" id="ttdScale" min="30" max="300" value="120" style="width:100%;" oninput="resizeSignature()">
+          </div>
+
+          <!-- Langkah 3: Catatan Multi-Line -->
+          <div class="control-step">
+            <span class="step-title">3. Tambah Teks / Catatan Approval</span>
+            <textarea id="noteInput" rows="3" style="width:100%; font-size:12px; margin-bottom:8px;" placeholder="Tulis catatan/tanggal di sini... (Tekan Enter untuk baris baru)"></textarea>
+            <button class="btn-step btn-blue" style="background-color:#0288d1;" onclick="applyTextToCanvas()">Munculkan Teks</button>
+
+            <label style="font-size:11px; margin-top:10px; display:block;">Atur Ukuran Teks:</label>
+            <input type="range" id="textFontSize" min="8" max="36" value="14" style="width:100%;" oninput="resizeText()">
+          </div>
+
+          <!-- Langkah 4: Simpan -->
+          <div class="control-step">
+            <button class="btn-step btn-red" onclick="saveSignedPdfToServer()">💾 Simpan PDF ke Server</button>
+          </div>
+
+        </div>
+
+        <!-- Preview PDF Workspace (Kanan) -->
+        <div class="preview-workspace">
+          <div class="pdf-nav">
+            <button onclick="changePage(-1)">← Prev</button>
+            <span style="font-size:13px;">Halaman: <b id="pageNum">1</b> / <span id="pageCount">?</span></span>
+            <button onclick="changePage(1)">Next →</button>
+          </div>
+
+          <!-- Canvas Preview + Draggable Items -->
+          <div class="pdf-canvas-container" id="canvasContainer">
+            <canvas id="pdfCanvas"></canvas>
+            
+            <!-- Draggable TTD -->
+            <div id="dragSignature" class="draggable-item">
+              <img id="sigImg" src="" alt="TTD">
+            </div>
+
+            <!-- Draggable Catatan/Teks -->
+            <div id="dragText" class="draggable-item"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript App Engine -->
   <script>
+    // URL Deployment Apps Script Kamu
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyuCgb2lZX4jQs7I1ckX6dElENTED3Ox-QrIM8zpxzIxakssNebDYbVCh3Uuao9n5RliA/exec";
 
-    async function handleFormSubmit(event) {
-      event.preventDefault();
+    // Setup PDF.js Worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-      const btn = document.getElementById('btnSubmit');
-      btn.disabled = true;
-      btn.innerText = "⏳ Mengirim data & mengupload PDF...";
+    let allData = [];
+    let activeRowIndex = null;
+    let pdfDoc = null;
+    let currentPageNum = 1;
+    let pdfBytesArrayBuffer = null;
+    let activePdfFileName = "Dokumen.pdf";
+
+    // --- 1. MEMUAT DATA TABEL ---
+    async function loadTableData() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#777;">Memuat data...</td></tr>';
 
       try {
-        const pdfFileInput = document.getElementById('suratPdf');
-        let pdfBase64 = "";
-        let pdfFileName = "";
-
-        if (pdfFileInput.files.length > 0) {
-          const file = pdfFileInput.files[0];
-          pdfFileName = file.name;
-          pdfBase64 = await convertFileToBase64(file);
-        }
-
-        const rawMulai = document.getElementById('tglMulai').value.split('-');
-        const formattedMulai = rawMulai[2] + '-' + rawMulai[1] + '-' + rawMulai[0];
-
-        const rawSelesai = document.getElementById('tglSelesai').value.split('-');
-        const formattedSelesai = rawSelesai[2] + '-' + rawSelesai[1] + '-' + rawSelesai[0];
-
-        const jenisFasilitasEl = document.querySelector('input[name="jenisFasilitas"]:checked');
-
-        const payload = {
-          action: 'submitFormPeminjaman',
-          data: {
-            nama: document.getElementById('nama').value,
-            nip: document.getElementById('nip').value,
-            email: document.getElementById('email').value,
-            noHp: document.getElementById('noHp').value,
-            tglMulai: formattedMulai,
-            tglSelesai: formattedSelesai,
-            jenisFasilitas: jenisFasilitasEl ? jenisFasilitasEl.value : '',
-            detailFasilitas: document.getElementById('detailFasilitas').value,
-            pdfBase64: pdfBase64,
-            pdfFileName: pdfFileName
-          }
-        };
-
         const response = await fetch(GAS_URL, {
           method: 'POST',
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ action: 'getPeminjamanData' })
         });
-
         const result = await response.json();
 
         if (result.status === 'success') {
-          alert(result.data);
-          document.getElementById('peminjamanForm').reset();
+          allData = result.data;
+          renderTable(allData);
         } else {
-          alert("Gagal: " + result.message);
+          tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Gagal: ${result.message}</td></tr>`;
         }
-
       } catch (err) {
-        alert("Terjadi kesalahan: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "Kirim Permohonan";
+        tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error Jaringan. Pastikan URL Apps Script Benar!</td></tr>`;
       }
     }
 
-    function convertFileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-      });
+    function renderTable(data) {
+      const tbody = document.getElementById('tableBody');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Tidak ada data peminjaman.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map((item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td><b>${item.nama}</b><br><small>NIP/NIM: ${item.nip}<br>HP: ${item.noHp}<br>Email: ${item.email}</small></td>
+          <td><b>${item.jenisFasilitas}</b><br><small>${item.detailFasilitas}<br><b>Tgl:</b> ${item.tglMulai} s/d ${item.tglSelesai}</small></td>
+          <td>${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank">Lihat PDF</a>` : '-'}</td>
+          <td>${item.keputusan || '-'}</td>
+          <td>${item.emailCc || '-'}</td>
+          <td><span style="padding: 2px 6px; border-radius: 4px; background: ${item.statusOption === 'Yes' ? '#c8e6c9' : item.statusOption === 'No' ? '#ffcdd2' : '#fff9c4'}; font-weight: bold;">${item.statusOption || 'Pending'}</span></td>
+          <td>
+            <button class="btn-action" onclick="openPdfModal(${item.rowIndex})">🖊 Edit & TTD PDF</button>
+          </td>
+        </tr>
+      `).join('');
     }
+
+    function applyFilters() {
+      const status = document.getElementById('filterStatus').value;
+      const query = document.getElementById('searchQuery').value.toLowerCase();
+
+      const filtered = allData.filter(item => {
+        const matchStatus = (status === 'Semua Status') || (item.statusOption === status);
+        const matchQuery = item.nama.toLowerCase().includes(query) || item.detailFasilitas.toLowerCase().includes(query);
+        return matchStatus && matchQuery;
+      });
+      renderTable(filtered);
+    }
+
+    // --- 2. MODAL & PREVIEW PDF ---
+    function openPdfModal(rowIndex) {
+      activeRowIndex = rowIndex;
+      document.getElementById('pdfModal').style.display = 'flex';
+      
+      // Reset State
+      resetOverlays();
+      document.getElementById('pdfCanvas').getContext('2d').clearRect(0, 0, 500, 700);
+      document.getElementById('pageNum').innerText = "1";
+      document.getElementById('pageCount').innerText = "?";
+      
+      // Otomatis tarik PDF saat modal dibuka
+      fetchPdfFromServer();
+    }
+
+    function closeModal() {
+      document.getElementById('pdfModal').style.display = 'none';
+    }
+
+    async function fetchPdfFromServer() {
+      try {
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getPdfBase64', rowIndex: activeRowIndex })
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          activePdfFileName = result.data.fileName;
+          const base64Data = result.data.base64;
+          
+          // Decode Base64 to ArrayBuffer
+          const binaryString = atob(base64Data);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          pdfBytesArrayBuffer = bytes.buffer;
+
+          // Render halaman pertama PDF
+          pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+          document.getElementById('pageCount').innerText = pdfDoc.numPages;
+          currentPageNum = 1;
+          renderPdfPage(currentPageNum);
+        } else {
+          alert("Gagal mengambil PDF: " + result.message);
+        }
+      } catch (err) {
+        alert("Terjadi kesalahan jaringan: " + err.message);
+      }
+    }
+
+    async function renderPdfPage(pageNum) {
+      if (!pdfDoc) return;
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 1.2 });
+
+      const canvas = document.getElementById('pdfCanvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      await page.render({ canvasContext: context, viewport: viewport }).promise;
+      document.getElementById('pageNum').innerText = pageNum;
+    }
+
+    function changePage(delta) {
+      if (!pdfDoc) return;
+      const newPage = currentPageNum + delta;
+      if (newPage >= 1 && newPage <= pdfDoc.numPages) {
+        currentPageNum = newPage;
+        renderPdfPage(currentPageNum);
+      }
+    }
+
+    // --- 3. LOGIKA TANDATANGAN & CATATAN MULTI-LINE ---
+    async function fetchSignature() {
+      const driveUrl = document.getElementById('ttdUrlInput').value;
+      if (!driveUrl) return alert("Masukkan URL Gambar TTD terlebih dahulu.");
+
+      try {
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getSignaturePngBase64', url: driveUrl })
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          const sigImg = document.getElementById('sigImg');
+          sigImg.src = `data:${result.data.mimeType};base64,${result.data.base64}`;
+          
+          const dragSig = document.getElementById('dragSignature');
+          dragSig.style.display = 'block';
+          dragSig.style.left = '50px';
+          dragSig.style.top = '50px';
+          resizeSignature();
+        } else {
+          alert("Gagal mengambil TTD: " + result.message);
+        }
+      } catch (err) {
+        alert("Terjadi kesalahan: " + err.message);
+      }
+    }
+
+    function resizeSignature() {
+      const width = document.getElementById('ttdScale').value;
+      const dragSig = document.getElementById('dragSignature');
+      dragSig.style.width = width + 'px';
+    }
+
+    function applyTextToCanvas() {
+      const text = document.getElementById('noteInput').value;
+      if (!text.trim()) return alert("Tuliskan catatan terlebih dahulu!");
+
+      const dragText = document.getElementById('dragText');
+      dragText.innerText = text;
+      dragText.style.display = 'block';
+      dragText.style.left = '50px';
+      dragText.style.top = '180px';
+      resizeText();
+    }
+
+    function resizeText() {
+      const fontSize = document.getElementById('textFontSize').value;
+      const dragText = document.getElementById('dragText');
+      dragText.style.fontSize = fontSize + 'px';
+    }
+
+    function resetOverlays() {
+      document.getElementById('dragSignature').style.display = 'none';
+      document.getElementById('dragText').style.display = 'none';
+    }
+
+    // --- 4. SISTEM DRAG & DROP UNTUK OVERLAY ---
+    makeElementDraggable(document.getElementById('dragSignature'));
+    makeElementDraggable(document.getElementById('dragText'));
+
+    function makeElementDraggable(elmnt) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      elmnt.onmousedown = dragMouseDown;
+
+      function dragMouseDown(e) {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        const container = document.getElementById('canvasContainer');
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+
+        // Batasi agar tidak melewatin batas canvas
+        if (newLeft >= 0 && newLeft + elmnt.offsetWidth <= container.offsetWidth) {
+          elmnt.style.left = newLeft + "px";
+        }
+        if (newTop >= 0 && newTop + elmnt.offsetHeight <= container.offsetHeight) {
+          elmnt.style.top = newTop + "px";
+        }
+      }
+
+      function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+
+    // --- 5. SIMPAN HASIL EDITAN KE PDF REAL (PDF-LIB) ---
+    async function saveSignedPdfToServer() {
+      if (!pdfBytesArrayBuffer) return alert("Silakan tarik PDF terlebih dahulu!");
+
+      try {
+        const { PDFDocument, rgb } = PDFLib;
+        const pdfDocLib = await PDFDocument.load(pdfBytesArrayBuffer);
+        const pages = pdfDocLib.getPages();
+        const page = pages[currentPageNum - 1]; // Halaman aktif
+
+        const canvas = document.getElementById('pdfCanvas');
+        const scaleX = page.getWidth() / canvas.width;
+        const scaleY = page.getHeight() / canvas.height;
+
+        // A. Embed Tanda Tangan (jika ditampilkan)
+        const dragSig = document.getElementById('dragSignature');
+        if (dragSig.style.display !== 'none') {
+          const sigImgEl = document.getElementById('sigImg');
+          const imageBytes = await fetch(sigImgEl.src).then(res => res.arrayBuffer());
+          
+          let embeddedImage;
+          if (sigImgEl.src.includes("image/png")) {
+            embeddedImage = await pdfDocLib.embedPng(imageBytes);
+          } else {
+            embeddedImage = await pdfDocLib.embedJpg(imageBytes);
+          }
+
+          const sigX = dragSig.offsetLeft * scaleX;
+          const sigW = dragSig.offsetWidth * scaleX;
+          const sigH = dragSig.offsetHeight * scaleY;
+          // PDF-Lib Y diukur dari bawah ke atas
+          const sigY = page.getHeight() - ((dragSig.offsetTop + dragSig.offsetHeight) * scaleY);
+
+          page.drawImage(embeddedImage, { x: sigX, y: sigY, width: sigW, height: sigH });
+        }
+
+        // B. Embed Catatan Multi-line (jika ditampilkan)
+        const dragText = document.getElementById('dragText');
+        if (dragText.style.display !== 'none') {
+          const rawText = document.getElementById('noteInput').value;
+          const fontSize = parseFloat(document.getElementById('textFontSize').value) * scaleY;
+          const lineHeight = fontSize * 1.25; // Spasi antar Enter
+
+          const textX = dragText.offsetLeft * scaleX;
+          const lines = rawText.split('\n');
+
+          lines.forEach((line, index) => {
+            // Hitung Y per baris
+            const textY = page.getHeight() - (dragText.offsetTop * scaleY) - (fontSize * 0.8) - (index * lineHeight);
+            page.drawText(line, {
+              x: textX,
+              y: textY,
+              size: fontSize,
+              color: rgb(0, 0, 0)
+            });
+          });
+        }
+
+        // Save PDF & Convert to Base64
+        const pdfBytes = await pdfDocLib.save();
+        let binary = '';
+        const bytes = new Uint8Array(pdfBytes);
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const pdfBase64 = btoa(binary);
+
+        // Kirim ke Google Apps Script
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'saveSignedPdf',
+            data: {
+              rowIndex: activeRowIndex,
+              base64Data: pdfBase64,
+              fileName: activePdfFileName
+            }
+          })
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+          alert(result.data);
+          closeModal();
+          loadTableData(); // Reload tabel admin
+        } else {
+          alert("Gagal menyimpan: " + result.message);
+        }
+
+      } catch (err) {
+        alert("Terjadi kesalahan saat memproses PDF: " + err.message);
+      }
+    }
+
+    // Jalankan pertama kali saat halaman dimuat
+    window.onload = loadTableData;
   </script>
 </body>
 </html>
