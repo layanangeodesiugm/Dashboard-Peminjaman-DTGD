@@ -213,7 +213,7 @@
     // ==========================================
     // MASUKKAN URL WEB APP ANDA DI BAWAH INI
     // ==========================================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyVNyQHh0ozGlkJE_lTyk4D34Fw6yeCY9UNfqiTcScUM9Vup-7_4ZqNo2YAGzcl1Yly6g/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyVBh0h8Y4f1gssCe61aElKs3RhOUKkpdUnkGI4_MD5uN06lul6MJgTgx10gxdSQseh/exec";
 
     // State Variables
     let allDataGlobal = [];
@@ -391,7 +391,6 @@
       btnFetch.innerHTML = '📥 Tarik Dokumen PDF'; btnFetch.disabled = false;
       state.pdfjsDoc = null;
 
-      // Set status dropdown sesuai status tabel saat ini
       const item = allDataGlobal.find(d => d.rowIndex === rowIndex);
       if(item && item.statusOption) {
         document.getElementById('pdfStatusSelect').value = item.statusOption;
@@ -523,7 +522,7 @@
               rowIndex: state.activeRow, 
               base64Data: btoa(binary), 
               fileName: state.fileName,
-              statusOption: selectedStatus // Mengirim status yang dipilih
+              statusOption: selectedStatus
             } 
           }) 
         });
