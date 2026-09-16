@@ -100,16 +100,15 @@
         <thead>
           <tr>
             <th width="5%">No</th>
-            <th width="20%">Identitas Peminjam</th>
-            <th width="25%">Detail Peminjaman</th>
+            <th width="25%">Identitas Peminjam</th>
+            <th width="28%">Detail Peminjaman</th>
             <th width="15%">Surat PDF</th>
-            <th width="15%">Keputusan</th>
-            <th width="8%">Status</th>
-            <th width="12%">Aksi</th>
+            <th width="10%">Status</th>
+            <th width="17%">Aksi</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="7" style="text-align: center; padding: 40px;">Memuat data...</td></tr>
+          <tr><td colspan="6" style="text-align: center; padding: 40px;">Memuat data...</td></tr>
         </tbody>
       </table>
       
@@ -143,7 +142,7 @@
       </div>
       <div class="input-group">
         <label>Pesan / Keputusan (Muncul di badan email)</label>
-        <textarea id="emailMessageInput" rows="5" placeholder="Tuliskan keputusan seperti 'Permohonan disetujui, silakan ambil kunci di ruang tata usaha...'"></textarea>
+        <textarea id="emailMessageInput" rows="5" placeholder="Tuliskan keputusan seperti 'Permohonan disetujui, silakan ambil kunci...'"></textarea>
       </div>
       
       <div style="display:flex; gap:12px; margin-top: 10px;">
@@ -194,7 +193,7 @@
             <button class="btn btn-outline" style="padding: 4px 10px;" onclick="changePage(1)">→</button>
           </div>
           <div class="pdf-container" id="pdfContainer" style="min-height: 800px; min-width: 600px; display: flex; justify-content: center; align-items: center; background: #fff;">
-            <span id="placeholderText" style="color:#94a3b8;">Klik "Tarik Dokumen PDF" di sidebar kiri untuk memuat surat.</span>
+            <span id="placeholderText" style="color:#94a3b8;">Klik "Tarik Dokumen PDF" di sidebar kiri.</span>
             <canvas id="pdfCanvas" style="display:none;"></canvas>
             <div id="dragSig" class="drag-item"><img id="imgSig" src="" style="width:100%; pointer-events:none;"></div>
             <div id="dragText" class="drag-item" style="color:#000; font-family:Arial; white-space:pre-wrap; line-height:1.2;"></div>
@@ -215,11 +214,7 @@
     let filteredDataGlobal = [];
     let currentPage = 1;
     const ITEMS_PER_PAGE = 15;
-    
-    // Email State
     let activeEmailRow = null;
-
-    // PDF State
     const state = { activeRow: null, pdfBuffer: null, pdfjsDoc: null, currentPdfPage: 1, fileName: 'Dokumen.pdf', searchTimeout: null };
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
@@ -283,7 +278,7 @@
     function renderTable(data, startIndex) {
       const tbody = document.getElementById('tableBody');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Tidak ada data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px;">Tidak ada data.</td></tr>';
         return;
       }
 
@@ -292,11 +287,6 @@
         let badgeClass = 'menunggu';
         if (statusLower.includes('tidak') || statusLower.includes('tolak')) badgeClass = 'ditolak';
         else if (statusLower.includes('setuju')) badgeClass = 'disetujui';
-
-        let keputusanText = item.keputusan || '-';
-        if(item.keputusan && !isNaN(Date.parse(item.keputusan))) {
-            keputusanText = new Date(item.keputusan).toLocaleDateString('id-ID');
-        }
 
         return `
           <tr>
@@ -313,75 +303,80 @@
             <td>
               ${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:12px; text-decoration:none;">📄 Lihat PDF</a>` : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>'}
             </td>
-            <td style="font-size: 13px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${keputusanText}">${keputusanText}</td>
             <td><span class="badge ${badgeClass}">${item.statusOption}</span></td>
             <td style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn btn-action" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openEmailModal(${item.rowIndex})">✉️ Email</button>
-              <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openWorkspace(${item.rowIndex})">✍️ TTD</button>
+              <button class="btn btn-action" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openEmailModal(${item.rowIndex})" title="Email">✉️</button>
+              <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openWorkspace(${item.rowIndex})" title="TTD PDF">✍️</button>
+              <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px; flex:1; color:var(--danger); border-color:var(--danger);" onclick="deleteRowAction(${item.rowIndex}, this)" title="Hapus Permanen">🗑️</button>
             </td>
           </tr>
         `;
       }).join('');
     }
 
+    // --- FUNGSI HAPUS ROW ---
+    async function deleteRowAction(rowIndex, btnEl) {
+      if(!confirm("⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus permohonan ini secara permanen? Data yang dihapus tidak bisa dikembalikan.")) return;
+      
+      const originalText = btnEl.innerHTML;
+      btnEl.innerHTML = `<span class="spinner" style="width:12px; height:12px;"></span>`;
+      btnEl.disabled = true;
+
+      try {
+        const res = await fetch(GAS_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'deleteRow', data: { rowIndex: rowIndex } })
+        });
+        const json = await res.json();
+        
+        if (json.status === 'success') {
+          showToast(json.message, "success");
+          loadData(); // Segarkan tabel untuk memperbarui baris
+        } else throw new Error(json.message);
+      } catch (err) {
+        showToast(err.message, "error");
+        btnEl.innerHTML = originalText;
+        btnEl.disabled = false;
+      }
+    }
+
     // --- FUNGSI MODAL EMAIL ---
     function openEmailModal(rowIndex) {
       activeEmailRow = rowIndex;
       const item = allDataGlobal.find(d => d.rowIndex === rowIndex);
-      
       if(item) {
         document.getElementById('emailToInput').value = item.email || '';
         document.getElementById('emailCcInput').value = item.emailCc || '';
-        
         let defaultMsg = item.keputusan || '';
-        if(item.keputusan && !isNaN(Date.parse(item.keputusan))) {
-           defaultMsg = "Permohonan disetujui pada " + new Date(item.keputusan).toLocaleDateString('id-ID');
-        }
         document.getElementById('emailMessageInput').value = defaultMsg;
       }
       document.getElementById('emailModal').style.display = 'flex';
     }
 
-    function closeEmailModal() {
-      document.getElementById('emailModal').style.display = 'none';
-    }
+    function closeEmailModal() { document.getElementById('emailModal').style.display = 'none'; }
 
     async function sendEmailConfirm() {
       const btn = document.getElementById('btnSendEmailConfirm');
       const prevText = btn.innerHTML;
-      btn.innerHTML = `<span class="spinner"></span> Mengirim...`;
-      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span> Mengirim...`; btn.disabled = true;
 
       const emailTo = document.getElementById('emailToInput').value;
       const emailCc = document.getElementById('emailCcInput').value;
       const keputusan = document.getElementById('emailMessageInput').value;
 
       try {
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'sendNotificationEmail', data: { rowIndex: activeEmailRow, emailTo, emailCc, keputusan } })
-        });
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'sendNotificationEmail', data: { rowIndex: activeEmailRow, emailTo, emailCc, keputusan } }) });
         const json = await res.json();
-        
-        if (json.status === 'success') {
-          showToast(json.message, "success");
-          closeEmailModal();
-          loadData(); // Segarkan tabel untuk memperbarui kolom Keputusan
-        } else throw new Error(json.message);
-      } catch (err) {
-        showToast(err.message, "error");
-      } finally {
-        btn.innerHTML = prevText;
-        btn.disabled = false;
-      }
+        if (json.status === 'success') { showToast(json.message, "success"); closeEmailModal(); loadData(); } 
+        else throw new Error(json.message);
+      } catch (err) { showToast(err.message, "error"); } 
+      finally { btn.innerHTML = prevText; btn.disabled = false; }
     }
 
     // --- FUNGSI WORKSPACE PDF MANUAL ---
     function openWorkspace(rowIndex) {
       state.activeRow = rowIndex;
       document.getElementById('pdfModal').style.display = 'flex';
-      
-      // Reset Workspace
       document.getElementById('pdfCanvas').style.display = 'none';
       document.getElementById('placeholderText').style.display = 'block';
       document.getElementById('dragSig').style.display = 'none';
@@ -389,44 +384,33 @@
       document.getElementById('pageCount').innerText = '-';
       document.getElementById('pageNum').innerText = '1';
       
-      // Reset tombol tarik
       const btnFetch = document.getElementById('btnFetchPdf');
-      btnFetch.innerHTML = '📥 Tarik Dokumen PDF';
-      btnFetch.disabled = false;
+      btnFetch.innerHTML = '📥 Tarik Dokumen PDF'; btnFetch.disabled = false;
       state.pdfjsDoc = null;
     }
 
     async function fetchPdfForWorkspace() {
       const btn = document.getElementById('btnFetchPdf');
-      btn.innerHTML = `<span class="spinner"></span> Menarik PDF...`;
-      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span> Menarik PDF...`; btn.disabled = true;
 
       try {
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getPdfBase64', rowIndex: state.activeRow }) });
         const json = await res.json();
         if(json.status === 'success') {
           state.fileName = json.data.fileName;
-          const binary = atob(json.data.base64);
-          const bytes = new Uint8Array(binary.length);
+          const binary = atob(json.data.base64); const bytes = new Uint8Array(binary.length);
           for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-          
           state.pdfBuffer = bytes.buffer;
           state.pdfjsDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
           document.getElementById('pageCount').innerText = state.pdfjsDoc.numPages;
           state.currentPdfPage = 1;
-          
           document.getElementById('placeholderText').style.display = 'none';
           document.getElementById('pdfCanvas').style.display = 'block';
-          
           await renderPdfPage(state.currentPdfPage);
           showToast("Dokumen berhasil ditarik", "success");
           btn.innerHTML = `✅ Dokumen Dimuat`;
         } else throw new Error(json.message);
-      } catch (err) { 
-        showToast(err.message, "error"); 
-        btn.innerHTML = `📥 Tarik Ulang PDF`;
-        btn.disabled = false;
-      }
+      } catch (err) { showToast(err.message, "error"); btn.innerHTML = `📥 Tarik Ulang PDF`; btn.disabled = false; }
     }
 
     async function renderPdfPage(num) {
@@ -442,9 +426,7 @@
     function changePage(delta) {
       if (!state.pdfjsDoc) return;
       const newPage = state.currentPdfPage + delta;
-      if (newPage >= 1 && newPage <= state.pdfjsDoc.numPages) {
-        state.currentPdfPage = newPage; renderPdfPage(newPage);
-      }
+      if (newPage >= 1 && newPage <= state.pdfjsDoc.numPages) { state.currentPdfPage = newPage; renderPdfPage(newPage); }
     }
     
     function closeModal() { document.getElementById('pdfModal').style.display = 'none'; }
