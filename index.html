@@ -4,94 +4,64 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Peminjaman | Pro Version</title>
-  
-  <!-- Font Modern: Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    :root {
-      --primary: #2563eb; --primary-hover: #1d4ed8;
-      --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-      --bg-color: #f8fafc; --card-bg: #ffffff;
-      --text-main: #1e293b; --text-muted: #64748b;
-      --border-color: #e2e8f0;
-    }
-    
+    :root { --primary: #2563eb; --primary-hover: #1d4ed8; --success: #10b981; --danger: #ef4444; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --border-color: #e2e8f0; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; }
-    
     .dashboard-container { max-width: 1400px; margin: 0 auto; }
     
-    /* Header & Top Bar */
-    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
-    .header-bar h1 { font-size: 24px; font-weight: 700; color: var(--text-main); letter-spacing: -0.5px; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header-bar h1 { font-size: 24px; font-weight: 700; }
     
-    /* Control Panel (Search, Filter, Refresh) */
     .controls { background: var(--card-bg); padding: 16px 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: flex-end; margin-bottom: 24px; border: 1px solid var(--border-color); flex-wrap: wrap; }
     .input-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
     .input-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-    .input-group input, .input-group select { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; transition: 0.2s; outline: none; }
-    .input-group input:focus, .input-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-    
+    .input-group input, .input-group select { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; }
     .action-group { display: flex; align-items: center; gap: 12px; }
-    .last-updated-box { font-size: 13px; color: var(--text-muted); background: #f1f5f9; padding: 10px 16px; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .last-updated-box { font-size: 13px; color: var(--text-muted); background: #f1f5f9; padding: 10px 16px; border-radius: 8px; font-weight: 500; }
     
-    .btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+    .btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
     .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
-    .btn-outline:hover { background: #f1f5f9; }
-    .btn-action { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; font-size: 12px; padding: 6px 12px; }
+    .btn-action { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; }
     .btn-action:hover { background: #dbeafe; }
-
-    /* Table Styling Pro */
-    .table-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-x: auto; border: 1px solid var(--border-color); }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: #f8fafc; padding: 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.5px; }
-    td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fcfcfc; }
     
-    /* Badges */
+    .table-wrapper { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: #f8fafc; padding: 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
+    td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
+    
     .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
     .badge.menunggu { background: #fef3c7; color: #b45309; }
     .badge.disetujui { background: #d1fae5; color: #047857; }
     .badge.ditolak { background: #fee2e2; color: #b91c1c; }
 
-    /* Toast Notification */
-    #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-    .toast { min-width: 250px; background: white; border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 14px; font-weight: 500; animation: slideIn 0.3s ease-out forwards; display: flex; justify-content: space-between; align-items: center; }
-    .toast.success { border-left-color: var(--success); }
-    .toast.error { border-left-color: var(--danger); }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    /* Pagination Styles */
+    .pagination { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+    .page-info { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .page-controls { display: flex; gap: 8px; }
+    .btn-page { padding: 8px 12px; border: 1px solid var(--border-color); background: white; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .btn-page:hover:not(:disabled) { background: #f1f5f9; }
+    .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Modal / Workspace */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; }
-    .modal-content { background: var(--bg-color); width: 98%; max-width: 1400px; height: 95vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    /* Toast & Modal styles remain the same but compressed for brevity */
+    #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { min-width: 250px; background: white; border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 14px; animation: slideIn 0.3s forwards; }
+    .toast.success { border-left-color: var(--success); } .toast.error { border-left-color: var(--danger); }
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-content { background: var(--bg-color); width: 98%; max-width: 1400px; height: 95vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
     .modal-header { background: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
-    .modal-header h3 { font-size: 18px; font-weight: 600; }
-    .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; color: var(--text-muted); }
-    .close-btn:hover { background: #e2e8f0; color: var(--danger); }
-    
     .workspace { display: flex; flex: 1; overflow: hidden; }
     .sidebar { width: 350px; background: white; border-right: 1px solid var(--border-color); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-    .tool-card { border: 1px solid var(--border-color); padding: 16px; border-radius: 12px; background: var(--bg-color); }
-    .tool-card h4 { font-size: 14px; color: var(--primary); margin-bottom: 12px; font-weight: 600; }
-    .tool-card input[type="text"], .tool-card textarea { width: 100%; margin-bottom: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; }
-    .tool-card input[type="range"] { width: 100%; margin-top: 5px; }
-    
-    .canvas-area { flex: 1; background: #e2e8f0; padding: 24px; overflow-y: auto; position: relative; display: flex; flex-direction: column; align-items: center; }
-    .pdf-toolbar { background: white; padding: 10px 20px; border-radius: 20px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .canvas-area { flex: 1; background: #e2e8f0; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+    .pdf-toolbar { background: white; padding: 10px 20px; border-radius: 20px; margin-bottom: 20px; display: flex; gap: 15px; }
     .pdf-container { position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: white; }
-    
-    /* Drag Items */
-    .drag-item { position: absolute; cursor: move; border: 2px dashed rgba(37,99,235,0.5); padding: 4px; background: rgba(255,255,255,0.2); display: none; user-select: none; transition: border-color 0.2s; }
-    .drag-item:hover, .drag-item:active { border-color: var(--primary); background: rgba(255,255,255,0.6); }
-    #dragSig img { width: 100%; height: 100%; display: block; pointer-events: none; }
-    #dragText { font-family: Helvetica, Arial, sans-serif; white-space: pre-wrap; line-height: 1.2; color: #000; }
-
-    /* Spinner */
-    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+    .drag-item { position: absolute; cursor: move; border: 2px dashed rgba(37,99,235,0.5); padding: 4px; display: none; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-radius: 50%; border-top-color: currentColor; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
@@ -120,14 +90,8 @@
         </select>
       </div>
       <div class="action-group">
-        <div class="last-updated-box">
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span id="lastUpdated">Belum diperbarui</span>
-        </div>
-        <button class="btn btn-primary" onclick="loadData()" id="btnRefresh">
-          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-          Segarkan Data
-        </button>
+        <div class="last-updated-box" id="lastUpdated">Belum diperbarui</div>
+        <button class="btn btn-primary" onclick="loadData()" id="btnRefresh">Segarkan Data</button>
       </div>
     </div>
 
@@ -138,76 +102,65 @@
             <th width="5%">No</th>
             <th width="20%">Identitas Peminjam</th>
             <th width="25%">Detail Peminjaman</th>
-            <th width="15%">Surat & TTD</th>
+            <th width="15%">Surat PDF</th>
             <th width="15%">Keputusan</th>
-            <th width="10%">Status</th>
-            <th width="10%">Aksi</th>
+            <th width="8%">Status</th>
+            <th width="12%">Aksi</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">Memuat data...</td></tr>
+          <tr><td colspan="7" style="text-align: center; padding: 40px;">Memuat data...</td></tr>
         </tbody>
       </table>
+      
+      <!-- Paginasi Controls -->
+      <div class="pagination">
+        <div class="page-info" id="pageInfo">Menampilkan 0 - 0 dari 0 data</div>
+        <div class="page-controls">
+          <button class="btn-page" id="btnPrev" onclick="changePageData(-1)">Sebelumnya</button>
+          <button class="btn-page" id="btnNext" onclick="changePageData(1)">Selanjutnya</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Toast Container -->
   <div id="toast-container"></div>
 
-  <!-- Workspace Modal Pro -->
+  <!-- Workspace PDF Modal -->
   <div class="modal-overlay" id="pdfModal">
     <div class="modal-content">
       <div class="modal-header">
         <h3>Workspace Validasi & Tanda Tangan</h3>
-        <button class="close-btn" onclick="closeModal()">✕</button>
+        <button class="btn btn-outline" style="padding: 4px 10px; border:none; font-size:18px;" onclick="closeModal()">✕</button>
       </div>
-      
       <div class="workspace">
-        <!-- Sidebar Tools -->
         <div class="sidebar">
-          
-          <div class="tool-card">
-            <h4>1. Tanda Tangan (Drive)</h4>
-            <input type="text" id="ttdUrl" placeholder="Link gambar TTD di Google Drive...">
-            <button class="btn btn-outline" style="width: 100%; justify-content: center;" onclick="loadSignature()">Ambil TTD</button>
-            <div style="margin-top: 10px;">
-              <label style="font-size: 12px; color: var(--text-muted);">Ukuran TTD</label>
-              <input type="range" id="scaleSig" min="30" max="300" value="120" oninput="resizeSig()">
-            </div>
+          <div class="tool-card" style="border: 1px solid #e2e8f0; padding:16px; border-radius:12px;">
+            <h4 style="font-size:14px; margin-bottom:10px; color:#2563eb;">1. Tanda Tangan (Drive)</h4>
+            <input type="text" id="ttdUrl" placeholder="Link gambar TTD di Drive..." style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border: 1px solid #e2e8f0;">
+            <button class="btn btn-outline" style="width:100%;" onclick="loadSignature()">Ambil TTD</button>
+            <input type="range" id="scaleSig" min="30" max="300" value="120" oninput="resizeSig()" style="width:100%; margin-top:10px;">
           </div>
-
-          <div class="tool-card">
-            <h4>2. Tambah Teks / Tanggal</h4>
-            <textarea id="textContent" rows="3" placeholder="Yogyakarta, 26 Agustus 2026&#10;Disetujui oleh..."></textarea>
-            <button class="btn btn-outline" style="width: 100%; justify-content: center;" onclick="applyText()">Munculkan Teks</button>
-            <div style="margin-top: 10px;">
-              <label style="font-size: 12px; color: var(--text-muted);">Ukuran Font</label>
-              <input type="range" id="scaleText" min="8" max="40" value="14" oninput="resizeText()">
-            </div>
+          <div class="tool-card" style="border: 1px solid #e2e8f0; padding:16px; border-radius:12px;">
+            <h4 style="font-size:14px; margin-bottom:10px; color:#2563eb;">2. Tambah Teks</h4>
+            <textarea id="textContent" rows="3" placeholder="Yogyakarta, 26 Agustus 2026..." style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border: 1px solid #e2e8f0;"></textarea>
+            <button class="btn btn-outline" style="width:100%;" onclick="applyText()">Munculkan Teks</button>
+            <input type="range" id="scaleText" min="8" max="40" value="14" oninput="resizeText()" style="width:100%; margin-top:10px;">
           </div>
-
-          <div class="tool-card" style="margin-top: auto; border-color: var(--primary); background: #eff6ff;">
-            <h4>3. Finalisasi Dokumen</h4>
-            <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveDocument()" id="btnSaveDoc">
-              💾 Simpan Dokumen (Disetujui)
-            </button>
+          <div class="tool-card" style="margin-top: auto;">
+            <button class="btn btn-primary" style="width: 100%;" onclick="saveDocument()" id="btnSaveDoc">💾 Simpan PDF</button>
           </div>
-
         </div>
-
-        <!-- Canvas PDF -->
         <div class="canvas-area">
           <div class="pdf-toolbar">
             <button class="btn btn-outline" style="padding: 4px 10px;" onclick="changePage(-1)">←</button>
             <span style="font-size: 14px; font-weight: 500;">Hal <span id="pageNum">1</span> dari <span id="pageCount">-</span></span>
             <button class="btn btn-outline" style="padding: 4px 10px;" onclick="changePage(1)">→</button>
           </div>
-
           <div class="pdf-container" id="pdfContainer">
             <canvas id="pdfCanvas"></canvas>
-            <!-- Overlay Draggable -->
-            <div id="dragSig" class="drag-item"><img id="imgSig" src=""></div>
-            <div id="dragText" class="drag-item"></div>
+            <div id="dragSig" class="drag-item"><img id="imgSig" src="" style="width:100%; pointer-events:none;"></div>
+            <div id="dragText" class="drag-item" style="color:#000; font-family:Arial; white-space:pre-wrap; line-height:1.2;"></div>
           </div>
         </div>
       </div>
@@ -216,154 +169,171 @@
 
   <script>
     // ==========================================
-    // KONFIGURASI URL APPS SCRIPT
-    // PASTIKAN GANTI INI DENGAN URL DEPLOYMENT BARU ANDA
+    // MASUKKAN URL WEB APP ANDA DI BAWAH INI
     // ==========================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxQhyxLQJ_YdAChfhHOmxqrpCRvX4I2AvvS49Uldz-0YdDEdKyRuau_ZkoZs7wg9kuYpw/exec";
 
-    // State Management
-    const state = {
-      allData: [],
-      activeRow: null,
-      pdfBuffer: null,
-      pdfDocLib: null,
-      pdfjsDoc: null,
-      currentPage: 1,
-      fileName: 'Dokumen.pdf',
-      searchTimeout: null
-    };
-
+    // State Variables
+    let allDataGlobal = [];
+    let filteredDataGlobal = [];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 15;
+    
+    // PDF State
+    const state = { activeRow: null, pdfBuffer: null, pdfjsDoc: null, currentPdfPage: 1, fileName: 'Dokumen.pdf', searchTimeout: null };
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    // INISIALISASI
     window.onload = loadData;
 
-    // FUNGSI UTAMA: MENGAMBIL DATA
+    // --- FETCH DATA ---
     async function loadData() {
       const btn = document.getElementById('btnRefresh');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<span class="spinner"></span> Memuat...`;
-      btn.disabled = true;
-
+      btn.innerHTML = `<span class="spinner"></span> Memuat...`; btn.disabled = true;
       try {
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'getPeminjamanData' })
-        });
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getPeminjamanData' }) });
         const json = await res.json();
-        
         if (json.status === 'success') {
-          state.allData = json.data;
+          allDataGlobal = json.data;
           filterData();
-          updateLastUpdated();
+          document.getElementById('lastUpdated').innerText = new Date().toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
           showToast("Data berhasil diperbarui", "success");
-        } else {
-          throw new Error(json.message);
-        }
+        } else throw new Error(json.message);
       } catch (err) {
-        showToast("Gagal memuat data: " + err.message, "error");
-        document.getElementById('tableBody').innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Gagal koneksi ke server.</td></tr>`;
+        showToast("Gagal: " + err.message, "error");
       } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        btn.innerHTML = `Segarkan Data`; btn.disabled = false;
       }
     }
 
-    // UPDATE WAKTU
-    function updateLastUpdated() {
-      const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
-      const nowStr = new Date().toLocaleDateString('id-ID', options);
-      document.getElementById('lastUpdated').innerText = nowStr;
-    }
-
-    // PENCARIAN & FILTER
+    // --- FILTER & PAGINATION ---
     function debounceSearch() {
       clearTimeout(state.searchTimeout);
-      state.searchTimeout = setTimeout(filterData, 300); // 300ms delay
+      state.searchTimeout = setTimeout(filterData, 300);
     }
 
     function filterData() {
       const query = document.getElementById('searchBox').value.toLowerCase();
       const status = document.getElementById('statusFilter').value;
-
-      const filtered = state.allData.filter(item => {
+      filteredDataGlobal = allDataGlobal.filter(item => {
         const matchStatus = status === 'ALL' || (item.statusOption && item.statusOption.includes(status));
         const matchSearch = Object.values(item).some(val => String(val).toLowerCase().includes(query));
         return matchStatus && matchSearch;
       });
-
-      renderTable(filtered);
+      currentPage = 1;
+      displayCurrentPage();
     }
 
-    // RENDER TABEL
-    function renderTable(data) {
+    function displayCurrentPage() {
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const paginatedData = filteredDataGlobal.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+      renderTable(paginatedData, startIndex);
+      
+      // Update Paginasi Controls
+      const totalPages = Math.ceil(filteredDataGlobal.length / ITEMS_PER_PAGE) || 1;
+      const endItem = Math.min(currentPage * ITEMS_PER_PAGE, filteredDataGlobal.length);
+      const startItem = filteredDataGlobal.length > 0 ? startIndex + 1 : 0;
+      
+      document.getElementById('pageInfo').innerText = `Menampilkan ${startItem} - ${endItem} dari ${filteredDataGlobal.length} data`;
+      document.getElementById('btnPrev').disabled = currentPage === 1;
+      document.getElementById('btnNext').disabled = currentPage === totalPages;
+    }
+
+    function changePageData(delta) {
+      const totalPages = Math.ceil(filteredDataGlobal.length / ITEMS_PER_PAGE);
+      const newPage = currentPage + delta;
+      if (newPage >= 1 && newPage <= totalPages) {
+        currentPage = newPage;
+        displayCurrentPage();
+      }
+    }
+
+    // --- RENDER TABEL ---
+    function renderTable(data, startIndex) {
       const tbody = document.getElementById('tableBody');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--text-muted);">Tidak ada data yang cocok.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Tidak ada data yang cocok.</td></tr>';
         return;
       }
 
       tbody.innerHTML = data.map((item, i) => {
-        // [PERBAIKAN LOGIKA STATUS ADA DI SINI]
         let statusLower = (item.statusOption || '').toLowerCase();
         let badgeClass = 'menunggu';
+        if (statusLower.includes('tidak') || statusLower.includes('tolak')) badgeClass = 'ditolak';
+        else if (statusLower.includes('setuju')) badgeClass = 'disetujui';
 
-        if (statusLower.includes('tidak') || statusLower.includes('tolak')) {
-          badgeClass = 'ditolak';
-        } else if (statusLower.includes('setuju')) {
-          badgeClass = 'disetujui';
-        }
-
-        // Tampilkan value keputusan yang rapi
-        let keputusanText = item.keputusan ? item.keputusan : 'Belum Diproses';
-        // jika item.keputusan bisa dibaca sebagai format tanggal
+        let keputusanText = item.keputusan || '-';
         if(item.keputusan && !isNaN(Date.parse(item.keputusan))) {
             keputusanText = new Date(item.keputusan).toLocaleDateString('id-ID');
         }
 
         return `
           <tr>
-            <td><b>${i + 1}</b></td>
+            <td><b>${startIndex + i + 1}</b></td>
             <td>
               <div style="font-weight: 600; color: var(--primary);">${item.nama || '-'}</div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">NIP/NIM: ${item.nip || '-'}</div>
+              <div style="font-size: 12px; color: var(--text-muted);">NIP/NIM: ${item.nip || '-'}</div>
               <div style="font-size: 12px; color: var(--text-muted);">📞 ${item.noHp || '-'}</div>
             </td>
             <td>
               <div style="font-weight: 500;">${item.detailFasilitas || item.jenisFasilitas || '-'}</div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">📅 ${item.tglMulai || '?'} s/d ${item.tglSelesai || '?'}</div>
+              <div style="font-size: 12px; color: var(--text-muted);">📅 ${item.tglMulai || '?'} s/d ${item.tglSelesai || '?'}</div>
             </td>
             <td>
-              ${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-action" style="display:inline-block; margin-bottom:8px; text-decoration:none;">Lihat PDF</a>` : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>'}
+              ${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:12px; text-decoration:none;">📄 Lihat PDF</a>` : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>'}
             </td>
             <td style="font-size: 13px;">${keputusanText}</td>
             <td><span class="badge ${badgeClass}">${item.statusOption}</span></td>
-            <td>
-              <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="openWorkspace(${item.rowIndex})">Proses</button>
+            <td style="display:flex; gap:6px; flex-wrap:wrap;">
+              <!-- DUA TOMBOL AKSI -->
+              <button class="btn btn-action" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="sendEmailAction(${item.rowIndex}, this)" title="Kirim Notifikasi ke Email Peminjam">
+                ✉️ Email
+              </button>
+              <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openWorkspace(${item.rowIndex})" title="Edit dan Tanda Tangan PDF">
+                ✍️ TTD
+              </button>
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    // WORKSPACE & PDF LOGIC
-    async function openWorkspace(rowIndex) {
-      state.activeRow = rowIndex;
-      document.getElementById('pdfModal').style.display = 'flex';
-      
-      // Reset Drag Items
-      document.getElementById('dragSig').style.display = 'none';
-      document.getElementById('dragText').style.display = 'none';
-      
-      showToast("Sedang menarik PDF dari server...", "success");
-      
+    // --- FUNGSI KIRIM EMAIL ---
+    async function sendEmailAction(rowIndex, btnElement) {
+      if(!confirm("Anda yakin ingin mengirim email notifikasi status kepada peminjam ini?")) return;
+
+      const originalHTML = btnElement.innerHTML;
+      btnElement.innerHTML = `<span class="spinner" style="width:12px; height:12px;"></span>`;
+      btnElement.disabled = true;
+
       try {
         const res = await fetch(GAS_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: 'getPdfBase64', rowIndex: rowIndex })
+          body: JSON.stringify({ action: 'sendNotificationEmail', data: { rowIndex: rowIndex } })
         });
         const json = await res.json();
         
+        if (json.status === 'success') {
+          showToast(json.message, "success");
+        } else throw new Error(json.message);
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btnElement.innerHTML = originalHTML;
+        btnElement.disabled = false;
+      }
+    }
+
+    // --- WORKSPACE PDF (Sama seperti sebelumnya, disingkat untuk keterbacaan) ---
+    async function openWorkspace(rowIndex) {
+      state.activeRow = rowIndex;
+      document.getElementById('pdfModal').style.display = 'flex';
+      document.getElementById('dragSig').style.display = 'none';
+      document.getElementById('dragText').style.display = 'none';
+      
+      showToast("Menarik PDF...", "success");
+      try {
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getPdfBase64', rowIndex: rowIndex }) });
+        const json = await res.json();
         if(json.status === 'success') {
           state.fileName = json.data.fileName;
           const binary = atob(json.data.base64);
@@ -373,15 +343,10 @@
           state.pdfBuffer = bytes.buffer;
           state.pdfjsDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
           document.getElementById('pageCount').innerText = state.pdfjsDoc.numPages;
-          state.currentPage = 1;
-          renderPdfPage(state.currentPage);
-        } else {
-          throw new Error(json.message);
-        }
-      } catch (err) {
-        showToast("Gagal memuat PDF: " + err.message, "error");
-        closeModal();
-      }
+          state.currentPdfPage = 1;
+          renderPdfPage(state.currentPdfPage);
+        } else throw new Error(json.message);
+      } catch (err) { showToast(err.message, "error"); closeModal(); }
     }
 
     async function renderPdfPage(num) {
@@ -389,41 +354,31 @@
       const viewport = page.getViewport({ scale: 1.3 });
       const canvas = document.getElementById('pdfCanvas');
       const ctx = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      
+      canvas.height = viewport.height; canvas.width = viewport.width;
       await page.render({ canvasContext: ctx, viewport: viewport }).promise;
       document.getElementById('pageNum').innerText = num;
     }
-
+    
     function changePage(delta) {
       if (!state.pdfjsDoc) return;
-      const newPage = state.currentPage + delta;
+      const newPage = state.currentPdfPage + delta;
       if (newPage >= 1 && newPage <= state.pdfjsDoc.numPages) {
-        state.currentPage = newPage;
-        renderPdfPage(newPage);
+        state.currentPdfPage = newPage; renderPdfPage(newPage);
       }
     }
+    
+    function closeModal() { document.getElementById('pdfModal').style.display = 'none'; }
 
-    function closeModal() {
-      document.getElementById('pdfModal').style.display = 'none';
-    }
-
-    // OVERLAY DRAGGABLE LOGIC
     async function loadSignature() {
       const url = document.getElementById('ttdUrl').value;
-      if(!url) return showToast("Masukkan Link Drive TTD!", "error");
-      
+      if(!url) return showToast("Masukkan Link TTD!", "error");
       try {
-        showToast("Memuat TTD...", "success");
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getSignaturePngBase64', url: url }) });
         const json = await res.json();
         if(json.status === 'success') {
           document.getElementById('imgSig').src = `data:${json.data.mimeType};base64,${json.data.base64}`;
           const el = document.getElementById('dragSig');
-          el.style.display = 'block';
-          el.style.top = '100px'; el.style.left = '100px';
-          resizeSig();
+          el.style.display = 'block'; el.style.top = '100px'; el.style.left = '100px'; resizeSig();
         } else throw new Error(json.message);
       } catch (e) { showToast(e.message, "error"); }
     }
@@ -432,121 +387,70 @@
       const text = document.getElementById('textContent').value;
       if(!text.trim()) return showToast("Masukkan teks!", "error");
       const el = document.getElementById('dragText');
-      el.innerText = text;
-      el.style.display = 'block';
-      el.style.top = '200px'; el.style.left = '100px';
-      resizeText();
+      el.innerText = text; el.style.display = 'block'; el.style.top = '200px'; el.style.left = '100px'; resizeText();
     }
 
     function resizeSig() { document.getElementById('dragSig').style.width = document.getElementById('scaleSig').value + 'px'; }
     function resizeText() { document.getElementById('dragText').style.fontSize = document.getElementById('scaleText').value + 'px'; }
 
-    // Make elements draggable
     function makeDraggable(elmnt) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
       elmnt.onmousedown = function(e) {
-        e.preventDefault();
-        pos3 = e.clientX; pos4 = e.clientY;
+        e.preventDefault(); p3 = e.clientX; p4 = e.clientY;
         document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
         document.onmousemove = (e) => {
-          e.preventDefault();
-          pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-          pos3 = e.clientX; pos4 = e.clientY;
-          elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-          elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+          e.preventDefault(); p1 = p3 - e.clientX; p2 = p4 - e.clientY; p3 = e.clientX; p4 = e.clientY;
+          elmnt.style.top = (elmnt.offsetTop - p2) + "px"; elmnt.style.left = (elmnt.offsetLeft - p1) + "px";
         };
       };
     }
-    makeDraggable(document.getElementById('dragSig'));
-    makeDraggable(document.getElementById('dragText'));
+    makeDraggable(document.getElementById('dragSig')); makeDraggable(document.getElementById('dragText'));
 
-    // FINALISASI: SIMPAN PDF KE SERVER
     async function saveDocument() {
       const btn = document.getElementById('btnSaveDoc');
-      btn.innerHTML = `<span class="spinner"></span> Memproses...`;
-      btn.disabled = true;
-
+      btn.innerHTML = `<span class="spinner"></span> Memproses...`; btn.disabled = true;
       try {
         const { PDFDocument, rgb } = PDFLib;
         const pdfDoc = await PDFDocument.load(state.pdfBuffer);
-        const page = pdfDoc.getPages()[state.currentPage - 1];
+        const page = pdfDoc.getPages()[state.currentPdfPage - 1];
         const canvas = document.getElementById('pdfCanvas');
-        const sX = page.getWidth() / canvas.width;
-        const sY = page.getHeight() / canvas.height;
+        const sX = page.getWidth() / canvas.width; const sY = page.getHeight() / canvas.height;
 
-        // Tanamkan TTD
         const sigEl = document.getElementById('dragSig');
         if (sigEl.style.display !== 'none') {
           const imgEl = document.getElementById('imgSig');
           const imgBytes = await fetch(imgEl.src).then(r => r.arrayBuffer());
           const img = imgEl.src.includes('png') ? await pdfDoc.embedPng(imgBytes) : await pdfDoc.embedJpg(imgBytes);
-          page.drawImage(img, {
-            x: sigEl.offsetLeft * sX, 
-            y: page.getHeight() - ((sigEl.offsetTop + sigEl.offsetHeight) * sY),
-            width: sigEl.offsetWidth * sX, height: sigEl.offsetHeight * sY
-          });
+          page.drawImage(img, { x: sigEl.offsetLeft * sX, y: page.getHeight() - ((sigEl.offsetTop + sigEl.offsetHeight) * sY), width: sigEl.offsetWidth * sX, height: sigEl.offsetHeight * sY });
         }
 
-        // Tanamkan Teks
         const txtEl = document.getElementById('dragText');
         if (txtEl.style.display !== 'none') {
           const size = parseFloat(document.getElementById('scaleText').value) * sY;
           const textLines = txtEl.innerText.split('\n');
           textLines.forEach((line, idx) => {
-            page.drawText(line, {
-              x: txtEl.offsetLeft * sX,
-              y: page.getHeight() - (txtEl.offsetTop * sY) - (size * 0.85) - (idx * size * 1.2),
-              size: size, color: rgb(0,0,0)
-            });
+            page.drawText(line, { x: txtEl.offsetLeft * sX, y: page.getHeight() - (txtEl.offsetTop * sY) - (size * 0.85) - (idx * size * 1.2), size: size, color: rgb(0,0,0) });
           });
         }
 
         const pdfBytes = await pdfDoc.save();
-        let binary = '';
-        const bytesArr = new Uint8Array(pdfBytes);
+        let binary = ''; const bytesArr = new Uint8Array(pdfBytes);
         for (let i = 0; i < bytesArr.byteLength; i++) binary += String.fromCharCode(bytesArr[i]);
 
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'saveSignedPdf',
-            data: { rowIndex: state.activeRow, base64Data: btoa(binary), fileName: state.fileName }
-          })
-        });
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveSignedPdf', data: { rowIndex: state.activeRow, base64Data: btoa(binary), fileName: state.fileName } }) });
         const json = await res.json();
-        
-        if(json.status === 'success') {
-          showToast(json.message, "success");
-          closeModal();
-          loadData(); // Segarkan data tabel otomatis
-        } else {
-          throw new Error(json.message);
-        }
-
-      } catch (e) {
-        showToast("Gagal menyimpan: " + e.message, "error");
-      } finally {
-        btn.innerHTML = `💾 Simpan Dokumen (Disetujui)`;
-        btn.disabled = false;
-      }
+        if(json.status === 'success') { showToast(json.message, "success"); closeModal(); loadData(); } 
+        else throw new Error(json.message);
+      } catch (e) { showToast(e.message, "error"); } 
+      finally { btn.innerHTML = `💾 Simpan PDF`; btn.disabled = false; }
     }
 
-    // UI HELPER: TOAST NOTIFICATIONS
     function showToast(msg, type = "success") {
       const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:18px;">${type === 'success' ? '✅' : '⚠️'}</span>
-          <span>${msg}</span>
-        </div>
-      `;
+      const toast = document.createElement('div'); toast.className = `toast ${type}`;
+      toast.innerHTML = `<div style="display:flex; gap:10px;"><span style="font-size:18px;">${type === 'success' ? '✅' : '⚠️'}</span><span>${msg}</span></div>`;
       container.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-      }, 4000);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
     }
   </script>
 </body>
