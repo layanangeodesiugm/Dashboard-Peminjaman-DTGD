@@ -18,7 +18,7 @@
     .controls { background: var(--card-bg); padding: 16px 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: flex-end; margin-bottom: 24px; border: 1px solid var(--border-color); flex-wrap: wrap; }
     .input-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px; }
     .input-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-    .input-group input, .input-group select { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; }
+    .input-group input, .input-group select, .input-group textarea { padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; }
     .action-group { display: flex; align-items: center; gap: 12px; }
     .last-updated-box { font-size: 13px; color: var(--text-muted); background: #f1f5f9; padding: 10px 16px; border-radius: 8px; font-weight: 500; }
     
@@ -46,7 +46,7 @@
     .btn-page:hover:not(:disabled) { background: #f1f5f9; }
     .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Toast & Modal styles remain the same but compressed for brevity */
+    /* Toast & Modal styles */
     #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
     .toast { min-width: 250px; background: white; border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 14px; animation: slideIn 0.3s forwards; }
     .toast.success { border-left-color: var(--success); } .toast.error { border-left-color: var(--danger); }
@@ -113,7 +113,6 @@
         </tbody>
       </table>
       
-      <!-- Paginasi Controls -->
       <div class="pagination">
         <div class="page-info" id="pageInfo">Menampilkan 0 - 0 dari 0 data</div>
         <div class="page-controls">
@@ -126,7 +125,35 @@
 
   <div id="toast-container"></div>
 
-  <!-- Workspace PDF Modal -->
+  <!-- MODAL KIRIM EMAIL -->
+  <div class="modal-overlay" id="emailModal">
+    <div style="background:white; width:90%; max-width:550px; border-radius:12px; padding:24px; display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:12px;">
+        <h3 style="font-size:18px;">Edit & Kirim Email Notifikasi</h3>
+        <button onclick="closeEmailModal()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748b;">✕</button>
+      </div>
+      
+      <div class="input-group">
+        <label>Email Penerima (To)</label>
+        <input type="text" id="emailToInput" placeholder="Contoh: andi@ugm.ac.id">
+      </div>
+      <div class="input-group">
+        <label>Email CC (Pisahkan dengan koma jika lebih dari satu)</label>
+        <input type="text" id="emailCcInput" placeholder="Contoh: dosen@ugm.ac.id, admin@ugm.ac.id">
+      </div>
+      <div class="input-group">
+        <label>Pesan / Keputusan (Muncul di badan email)</label>
+        <textarea id="emailMessageInput" rows="5" placeholder="Tuliskan keputusan seperti 'Permohonan disetujui, silakan ambil kunci di ruang tata usaha...'"></textarea>
+      </div>
+      
+      <div style="display:flex; gap:12px; margin-top: 10px;">
+        <button class="btn btn-outline" style="flex:1;" onclick="closeEmailModal()">Batal</button>
+        <button class="btn btn-primary" style="flex:1;" id="btnSendEmailConfirm" onclick="sendEmailConfirm()">✉️ Kirim Email</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL WORKSPACE PDF -->
   <div class="modal-overlay" id="pdfModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -135,30 +162,40 @@
       </div>
       <div class="workspace">
         <div class="sidebar">
+          
+          <div class="tool-card" style="border: 1px solid #e2e8f0; padding:16px; border-radius:12px; background: #f8fafc;">
+            <h4 style="font-size:14px; margin-bottom:10px; color:#1e293b;">1. Muat Surat Pemohon</h4>
+            <button id="btnFetchPdf" class="btn btn-action" style="width:100%; border:1px solid #2563eb;" onclick="fetchPdfForWorkspace()">📥 Tarik Dokumen PDF</button>
+          </div>
+
           <div class="tool-card" style="border: 1px solid #e2e8f0; padding:16px; border-radius:12px;">
-            <h4 style="font-size:14px; margin-bottom:10px; color:#2563eb;">1. Tanda Tangan (Drive)</h4>
+            <h4 style="font-size:14px; margin-bottom:10px; color:#2563eb;">2. Tanda Tangan (Drive)</h4>
             <input type="text" id="ttdUrl" placeholder="Link gambar TTD di Drive..." style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border: 1px solid #e2e8f0;">
-            <button class="btn btn-outline" style="width:100%;" onclick="loadSignature()">Ambil TTD</button>
+            <button class="btn btn-outline" style="width:100%;" onclick="loadSignature()">Tempel TTD</button>
             <input type="range" id="scaleSig" min="30" max="300" value="120" oninput="resizeSig()" style="width:100%; margin-top:10px;">
           </div>
+
           <div class="tool-card" style="border: 1px solid #e2e8f0; padding:16px; border-radius:12px;">
-            <h4 style="font-size:14px; margin-bottom:10px; color:#2563eb;">2. Tambah Teks</h4>
+            <h4 style="font-size:14px; margin-bottom:10px; color:#2563eb;">3. Tambah Teks</h4>
             <textarea id="textContent" rows="3" placeholder="Yogyakarta, 26 Agustus 2026..." style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border: 1px solid #e2e8f0;"></textarea>
-            <button class="btn btn-outline" style="width:100%;" onclick="applyText()">Munculkan Teks</button>
+            <button class="btn btn-outline" style="width:100%;" onclick="applyText()">Tempel Teks</button>
             <input type="range" id="scaleText" min="8" max="40" value="14" oninput="resizeText()" style="width:100%; margin-top:10px;">
           </div>
+
           <div class="tool-card" style="margin-top: auto;">
-            <button class="btn btn-primary" style="width: 100%;" onclick="saveDocument()" id="btnSaveDoc">💾 Simpan PDF</button>
+            <button class="btn btn-primary" style="width: 100%;" onclick="saveDocument()" id="btnSaveDoc">💾 Simpan PDF & Setujui</button>
           </div>
         </div>
+
         <div class="canvas-area">
           <div class="pdf-toolbar">
             <button class="btn btn-outline" style="padding: 4px 10px;" onclick="changePage(-1)">←</button>
             <span style="font-size: 14px; font-weight: 500;">Hal <span id="pageNum">1</span> dari <span id="pageCount">-</span></span>
             <button class="btn btn-outline" style="padding: 4px 10px;" onclick="changePage(1)">→</button>
           </div>
-          <div class="pdf-container" id="pdfContainer">
-            <canvas id="pdfCanvas"></canvas>
+          <div class="pdf-container" id="pdfContainer" style="min-height: 800px; min-width: 600px; display: flex; justify-content: center; align-items: center; background: #fff;">
+            <span id="placeholderText" style="color:#94a3b8;">Klik "Tarik Dokumen PDF" di sidebar kiri untuk memuat surat.</span>
+            <canvas id="pdfCanvas" style="display:none;"></canvas>
             <div id="dragSig" class="drag-item"><img id="imgSig" src="" style="width:100%; pointer-events:none;"></div>
             <div id="dragText" class="drag-item" style="color:#000; font-family:Arial; white-space:pre-wrap; line-height:1.2;"></div>
           </div>
@@ -179,13 +216,15 @@
     let currentPage = 1;
     const ITEMS_PER_PAGE = 15;
     
+    // Email State
+    let activeEmailRow = null;
+
     // PDF State
     const state = { activeRow: null, pdfBuffer: null, pdfjsDoc: null, currentPdfPage: 1, fileName: 'Dokumen.pdf', searchTimeout: null };
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
     window.onload = loadData;
 
-    // --- FETCH DATA ---
     async function loadData() {
       const btn = document.getElementById('btnRefresh');
       btn.innerHTML = `<span class="spinner"></span> Memuat...`; btn.disabled = true;
@@ -196,20 +235,15 @@
           allDataGlobal = json.data;
           filterData();
           document.getElementById('lastUpdated').innerText = new Date().toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-          showToast("Data berhasil diperbarui", "success");
         } else throw new Error(json.message);
       } catch (err) {
-        showToast("Gagal: " + err.message, "error");
+        showToast("Gagal memuat data: " + err.message, "error");
       } finally {
         btn.innerHTML = `Segarkan Data`; btn.disabled = false;
       }
     }
 
-    // --- FILTER & PAGINATION ---
-    function debounceSearch() {
-      clearTimeout(state.searchTimeout);
-      state.searchTimeout = setTimeout(filterData, 300);
-    }
+    function debounceSearch() { clearTimeout(state.searchTimeout); state.searchTimeout = setTimeout(filterData, 300); }
 
     function filterData() {
       const query = document.getElementById('searchBox').value.toLowerCase();
@@ -228,7 +262,6 @@
       const paginatedData = filteredDataGlobal.slice(startIndex, startIndex + ITEMS_PER_PAGE);
       renderTable(paginatedData, startIndex);
       
-      // Update Paginasi Controls
       const totalPages = Math.ceil(filteredDataGlobal.length / ITEMS_PER_PAGE) || 1;
       const endItem = Math.min(currentPage * ITEMS_PER_PAGE, filteredDataGlobal.length);
       const startItem = filteredDataGlobal.length > 0 ? startIndex + 1 : 0;
@@ -247,11 +280,10 @@
       }
     }
 
-    // --- RENDER TABEL ---
     function renderTable(data, startIndex) {
       const tbody = document.getElementById('tableBody');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Tidak ada data yang cocok.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Tidak ada data.</td></tr>';
         return;
       }
 
@@ -281,58 +313,96 @@
             <td>
               ${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:12px; text-decoration:none;">📄 Lihat PDF</a>` : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>'}
             </td>
-            <td style="font-size: 13px;">${keputusanText}</td>
+            <td style="font-size: 13px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${keputusanText}">${keputusanText}</td>
             <td><span class="badge ${badgeClass}">${item.statusOption}</span></td>
             <td style="display:flex; gap:6px; flex-wrap:wrap;">
-              <!-- DUA TOMBOL AKSI -->
-              <button class="btn btn-action" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="sendEmailAction(${item.rowIndex}, this)" title="Kirim Notifikasi ke Email Peminjam">
-                ✉️ Email
-              </button>
-              <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openWorkspace(${item.rowIndex})" title="Edit dan Tanda Tangan PDF">
-                ✍️ TTD
-              </button>
+              <button class="btn btn-action" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openEmailModal(${item.rowIndex})">✉️ Email</button>
+              <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openWorkspace(${item.rowIndex})">✍️ TTD</button>
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    // --- FUNGSI KIRIM EMAIL ---
-    async function sendEmailAction(rowIndex, btnElement) {
-      if(!confirm("Anda yakin ingin mengirim email notifikasi status kepada peminjam ini?")) return;
+    // --- FUNGSI MODAL EMAIL ---
+    function openEmailModal(rowIndex) {
+      activeEmailRow = rowIndex;
+      const item = allDataGlobal.find(d => d.rowIndex === rowIndex);
+      
+      if(item) {
+        document.getElementById('emailToInput').value = item.email || '';
+        document.getElementById('emailCcInput').value = item.emailCc || '';
+        
+        let defaultMsg = item.keputusan || '';
+        if(item.keputusan && !isNaN(Date.parse(item.keputusan))) {
+           defaultMsg = "Permohonan disetujui pada " + new Date(item.keputusan).toLocaleDateString('id-ID');
+        }
+        document.getElementById('emailMessageInput').value = defaultMsg;
+      }
+      document.getElementById('emailModal').style.display = 'flex';
+    }
 
-      const originalHTML = btnElement.innerHTML;
-      btnElement.innerHTML = `<span class="spinner" style="width:12px; height:12px;"></span>`;
-      btnElement.disabled = true;
+    function closeEmailModal() {
+      document.getElementById('emailModal').style.display = 'none';
+    }
+
+    async function sendEmailConfirm() {
+      const btn = document.getElementById('btnSendEmailConfirm');
+      const prevText = btn.innerHTML;
+      btn.innerHTML = `<span class="spinner"></span> Mengirim...`;
+      btn.disabled = true;
+
+      const emailTo = document.getElementById('emailToInput').value;
+      const emailCc = document.getElementById('emailCcInput').value;
+      const keputusan = document.getElementById('emailMessageInput').value;
 
       try {
         const res = await fetch(GAS_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: 'sendNotificationEmail', data: { rowIndex: rowIndex } })
+          body: JSON.stringify({ action: 'sendNotificationEmail', data: { rowIndex: activeEmailRow, emailTo, emailCc, keputusan } })
         });
         const json = await res.json();
         
         if (json.status === 'success') {
           showToast(json.message, "success");
+          closeEmailModal();
+          loadData(); // Segarkan tabel untuk memperbarui kolom Keputusan
         } else throw new Error(json.message);
       } catch (err) {
         showToast(err.message, "error");
       } finally {
-        btnElement.innerHTML = originalHTML;
-        btnElement.disabled = false;
+        btn.innerHTML = prevText;
+        btn.disabled = false;
       }
     }
 
-    // --- WORKSPACE PDF (Sama seperti sebelumnya, disingkat untuk keterbacaan) ---
-    async function openWorkspace(rowIndex) {
+    // --- FUNGSI WORKSPACE PDF MANUAL ---
+    function openWorkspace(rowIndex) {
       state.activeRow = rowIndex;
       document.getElementById('pdfModal').style.display = 'flex';
+      
+      // Reset Workspace
+      document.getElementById('pdfCanvas').style.display = 'none';
+      document.getElementById('placeholderText').style.display = 'block';
       document.getElementById('dragSig').style.display = 'none';
       document.getElementById('dragText').style.display = 'none';
+      document.getElementById('pageCount').innerText = '-';
+      document.getElementById('pageNum').innerText = '1';
       
-      showToast("Menarik PDF...", "success");
+      // Reset tombol tarik
+      const btnFetch = document.getElementById('btnFetchPdf');
+      btnFetch.innerHTML = '📥 Tarik Dokumen PDF';
+      btnFetch.disabled = false;
+      state.pdfjsDoc = null;
+    }
+
+    async function fetchPdfForWorkspace() {
+      const btn = document.getElementById('btnFetchPdf');
+      btn.innerHTML = `<span class="spinner"></span> Menarik PDF...`;
+      btn.disabled = true;
+
       try {
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getPdfBase64', rowIndex: rowIndex }) });
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'getPdfBase64', rowIndex: state.activeRow }) });
         const json = await res.json();
         if(json.status === 'success') {
           state.fileName = json.data.fileName;
@@ -344,9 +414,19 @@
           state.pdfjsDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
           document.getElementById('pageCount').innerText = state.pdfjsDoc.numPages;
           state.currentPdfPage = 1;
-          renderPdfPage(state.currentPdfPage);
+          
+          document.getElementById('placeholderText').style.display = 'none';
+          document.getElementById('pdfCanvas').style.display = 'block';
+          
+          await renderPdfPage(state.currentPdfPage);
+          showToast("Dokumen berhasil ditarik", "success");
+          btn.innerHTML = `✅ Dokumen Dimuat`;
         } else throw new Error(json.message);
-      } catch (err) { showToast(err.message, "error"); closeModal(); }
+      } catch (err) { 
+        showToast(err.message, "error"); 
+        btn.innerHTML = `📥 Tarik Ulang PDF`;
+        btn.disabled = false;
+      }
     }
 
     async function renderPdfPage(num) {
@@ -370,6 +450,7 @@
     function closeModal() { document.getElementById('pdfModal').style.display = 'none'; }
 
     async function loadSignature() {
+      if(!state.pdfjsDoc) return showToast("Tarik dokumen PDF terlebih dahulu!", "error");
       const url = document.getElementById('ttdUrl').value;
       if(!url) return showToast("Masukkan Link TTD!", "error");
       try {
@@ -378,16 +459,17 @@
         if(json.status === 'success') {
           document.getElementById('imgSig').src = `data:${json.data.mimeType};base64,${json.data.base64}`;
           const el = document.getElementById('dragSig');
-          el.style.display = 'block'; el.style.top = '100px'; el.style.left = '100px'; resizeSig();
+          el.style.display = 'block'; el.style.top = '150px'; el.style.left = '150px'; resizeSig();
         } else throw new Error(json.message);
       } catch (e) { showToast(e.message, "error"); }
     }
 
     function applyText() {
+      if(!state.pdfjsDoc) return showToast("Tarik dokumen PDF terlebih dahulu!", "error");
       const text = document.getElementById('textContent').value;
       if(!text.trim()) return showToast("Masukkan teks!", "error");
       const el = document.getElementById('dragText');
-      el.innerText = text; el.style.display = 'block'; el.style.top = '200px'; el.style.left = '100px'; resizeText();
+      el.innerText = text; el.style.display = 'block'; el.style.top = '250px'; el.style.left = '150px'; resizeText();
     }
 
     function resizeSig() { document.getElementById('dragSig').style.width = document.getElementById('scaleSig').value + 'px'; }
@@ -407,6 +489,7 @@
     makeDraggable(document.getElementById('dragSig')); makeDraggable(document.getElementById('dragText'));
 
     async function saveDocument() {
+      if(!state.pdfjsDoc) return showToast("Dokumen PDF belum dimuat!", "error");
       const btn = document.getElementById('btnSaveDoc');
       btn.innerHTML = `<span class="spinner"></span> Memproses...`; btn.disabled = true;
       try {
@@ -442,7 +525,7 @@
         if(json.status === 'success') { showToast(json.message, "success"); closeModal(); loadData(); } 
         else throw new Error(json.message);
       } catch (e) { showToast(e.message, "error"); } 
-      finally { btn.innerHTML = `💾 Simpan PDF`; btn.disabled = false; }
+      finally { btn.innerHTML = `💾 Simpan PDF & Setujui`; btn.disabled = false; }
     }
 
     function showToast(msg, type = "success") {
