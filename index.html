@@ -485,36 +485,72 @@
     }
     makeDraggable(document.getElementById('dragSig')); makeDraggable(document.getElementById('dragText'));
 
+    // --- FUNGSI YANG SUDAH DIPERBAIKI ---
     async function saveDocument() {
       if(!state.pdfjsDoc) return showToast("Dokumen PDF belum dimuat!", "error");
       const btn = document.getElementById('btnSaveDoc');
       btn.innerHTML = `<span class="spinner"></span> Memproses...`; btn.disabled = true;
+      
       try {
         const { PDFDocument, rgb } = PDFLib;
         const pdfDoc = await PDFDocument.load(state.pdfBuffer);
         const page = pdfDoc.getPages()[state.currentPdfPage - 1];
         const canvas = document.getElementById('pdfCanvas');
-        const sX = page.getWidth() / canvas.width; const sY = page.getHeight() / canvas.height;
+        
+        // Skala perbedaan ukuran asli PDF dengan ukuran Canvas di layar
+        const sX = page.getWidth() / canvas.width; 
+        const sY = page.getHeight() / canvas.height;
 
+        // Kita ambil jarak pasti/offset dari canvas itu sendiri
+        const canvasLeft = canvas.offsetLeft;
+        const canvasTop = canvas.offsetTop;
+
+        // 1. Proses Tanda Tangan
         const sigEl = document.getElementById('dragSig');
         if (sigEl.style.display !== 'none') {
+          // Dapatkan titik koordinat relatif gambar terhadap Canvas (bukan terhadap layar/kontainer)
+          const relX = sigEl.offsetLeft - canvasLeft;
+          const relY = sigEl.offsetTop - canvasTop;
+
           const imgEl = document.getElementById('imgSig');
           const imgBytes = await fetch(imgEl.src).then(r => r.arrayBuffer());
           const img = imgEl.src.includes('png') ? await pdfDoc.embedPng(imgBytes) : await pdfDoc.embedJpg(imgBytes);
-          page.drawImage(img, { x: sigEl.offsetLeft * sX, y: page.getHeight() - ((sigEl.offsetTop + sigEl.offsetHeight) * sY), width: sigEl.offsetWidth * sX, height: sigEl.offsetHeight * sY });
+          
+          // Rumus: Tinggi PDF - (Koordinat Y relatif * skala) - Tinggi Gambar di PDF
+          const pdfWidth = sigEl.offsetWidth * sX;
+          const pdfHeight = sigEl.offsetHeight * sY;
+          const finalY = page.getHeight() - (relY * sY) - pdfHeight;
+
+          page.drawImage(img, { 
+            x: relX * sX, 
+            y: finalY, 
+            width: pdfWidth, 
+            height: pdfHeight 
+          });
         }
 
+        // 2. Proses Teks
         const txtEl = document.getElementById('dragText');
         if (txtEl.style.display !== 'none') {
+          // Dapatkan titik koordinat relatif teks terhadap Canvas
+          const relX = txtEl.offsetLeft - canvasLeft;
+          const relY = txtEl.offsetTop - canvasTop;
+          
           const size = parseFloat(document.getElementById('scaleText').value) * sY;
           const textLines = txtEl.innerText.split('\n');
           textLines.forEach((line, idx) => {
-            page.drawText(line, { x: txtEl.offsetLeft * sX, y: page.getHeight() - (txtEl.offsetTop * sY) - (size * 0.85) - (idx * size * 1.2), size: size, color: rgb(0,0,0) });
+            page.drawText(line, { 
+              x: relX * sX, 
+              y: page.getHeight() - (relY * sY) - (size * 0.85) - (idx * size * 1.2), 
+              size: size, 
+              color: rgb(0,0,0) 
+            });
           });
         }
 
         const pdfBytes = await pdfDoc.save();
-        let binary = ''; const bytesArr = new Uint8Array(pdfBytes);
+        let binary = ''; 
+        const bytesArr = new Uint8Array(pdfBytes);
         for (let i = 0; i < bytesArr.byteLength; i++) binary += String.fromCharCode(bytesArr[i]);
 
         const selectedStatus = document.getElementById('pdfStatusSelect').value;
@@ -532,10 +568,21 @@
           }) 
         });
         const json = await res.json();
-        if(json.status === 'success') { showToast(json.message, "success"); closeModal(); loadData(); } 
-        else throw new Error(json.message);
-      } catch (e) { showToast(e.message, "error"); } 
-      finally { btn.innerHTML = `💾 Simpan PDF`; btn.disabled = false; }
+        
+        if(json.status === 'success') { 
+          showToast(json.message, "success"); 
+          closeModal(); 
+          loadData(); 
+        } else {
+          throw new Error(json.message);
+        }
+        
+      } catch (e) { 
+        showToast(e.message, "error"); 
+      } finally { 
+        btn.innerHTML = `💾 Simpan PDF`; 
+        btn.disabled = false; 
+      }
     }
 
     function showToast(msg, type = "success") {
