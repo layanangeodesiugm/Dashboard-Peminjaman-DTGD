@@ -97,16 +97,17 @@
       <table>
         <thead>
           <tr>
-            <th width="5%">No</th>
-            <th width="25%">Identitas Peminjam</th>
-            <th width="28%">Detail Peminjaman</th>
-            <th width="15%">Surat PDF</th>
+            <th width="4%">No</th>
+            <th width="20%">Identitas Peminjam</th>
+            <th width="23%">Detail Peminjaman</th>
+            <th width="12%">Surat PDF</th>
             <th width="10%">Status</th>
-            <th width="17%">Aksi</th>
+            <th width="16%">Pesan Keputusan</th>
+            <th width="15%">Aksi</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="6" style="text-align: center; padding: 40px;">Memuat data...</td></tr>
+          <tr><td colspan="7" style="text-align: center; padding: 40px;">Memuat data...</td></tr>
         </tbody>
       </table>
       
@@ -213,7 +214,7 @@
     // ==========================================
     // MASUKKAN URL WEB APP ANDA DI BAWAH INI
     // ==========================================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby90AhdauXXoNcU0pMrFS8oV0Cn8xhNYTBBMjvmZg7YOk6bcCirtP7UWEP65IXq0bjM9g/exec";
+    const GAS_URL = "URL_WEB_APP_ANDA_DISINI";
 
     // State Variables
     let allDataGlobal = [];
@@ -272,19 +273,10 @@
       document.getElementById('btnNext').disabled = currentPage === totalPages;
     }
 
-    function changePageData(delta) {
-      const totalPages = Math.ceil(filteredDataGlobal.length / ITEMS_PER_PAGE);
-      const newPage = currentPage + delta;
-      if (newPage >= 1 && newPage <= totalPages) {
-        currentPage = newPage;
-        displayCurrentPage();
-      }
-    }
-
     function renderTable(data, startIndex) {
       const tbody = document.getElementById('tableBody');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px;">Tidak ada data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;">Tidak ada data.</td></tr>';
         return;
       }
 
@@ -293,6 +285,18 @@
         let badgeClass = 'menunggu';
         if (statusLower.includes('tidak') || statusLower.includes('tolak')) badgeClass = 'ditolak';
         else if (statusLower.includes('setuju')) badgeClass = 'disetujui';
+
+        // Logika untuk menampilkan keputusan/notifikasi terkirim
+        let keputusanHtml = '-';
+        if (item.keputusan) {
+          keputusanHtml = `
+            <div style="font-size: 12px; color: #047857; font-weight: 500; max-height: 3.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${item.keputusan}">
+              ✅ ${item.keputusan}
+            </div>
+          `;
+        } else {
+          keputusanHtml = `<span style="color: #94a3b8; font-size: 12px;">Belum dikirim</span>`;
+        }
 
         return `
           <tr>
@@ -310,6 +314,7 @@
               ${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:12px; text-decoration:none;">📄 Lihat PDF</a>` : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>'}
             </td>
             <td><span class="badge ${badgeClass}">${item.statusOption}</span></td>
+            <td>${keputusanHtml}</td>
             <td style="display:flex; gap:6px; flex-wrap:wrap;">
               <button class="btn btn-action" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openEmailModal(${item.rowIndex})" title="Email">✉️</button>
               <button class="btn btn-outline" style="padding: 6px 10px; font-size: 12px; flex:1;" onclick="openWorkspace(${item.rowIndex})" title="TTD PDF">✍️</button>
