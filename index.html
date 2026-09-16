@@ -38,7 +38,6 @@
     .badge.disetujui { background: #d1fae5; color: #047857; }
     .badge.ditolak { background: #fee2e2; color: #b91c1c; }
 
-    /* Pagination Styles */
     .pagination { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
     .page-info { font-size: 13px; color: var(--text-muted); font-weight: 500; }
     .page-controls { display: flex; gap: 8px; }
@@ -46,7 +45,6 @@
     .btn-page:hover:not(:disabled) { background: #f1f5f9; }
     .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Toast & Modal styles */
     #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
     .toast { min-width: 250px; background: white; border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-size: 14px; animation: slideIn 0.3s forwards; }
     .toast.success { border-left-color: var(--success); } .toast.error { border-left-color: var(--danger); }
@@ -181,8 +179,16 @@
             <input type="range" id="scaleText" min="8" max="40" value="14" oninput="resizeText()" style="width:100%; margin-top:10px;">
           </div>
 
-          <div class="tool-card" style="margin-top: auto;">
-            <button class="btn btn-primary" style="width: 100%;" onclick="saveDocument()" id="btnSaveDoc">💾 Simpan PDF & Setujui</button>
+          <div class="tool-card" style="border: 1px solid #e2e8f0; padding:16px; border-radius:12px; margin-top: auto; margin-bottom: 10px;">
+            <h4 style="font-size:14px; margin-bottom:10px; color:#1e293b;">4. Tetapkan Status</h4>
+            <select id="pdfStatusSelect" style="width:100%; padding:8px; border-radius:6px; border: 1px solid #e2e8f0;">
+              <option value="Menunggu">Menunggu</option>
+              <option value="Disetujui">Disetujui</option>
+              <option value="Ditolak">Ditolak</option>
+            </select>
+          </div>
+          <div class="tool-card">
+            <button class="btn btn-primary" style="width: 100%;" onclick="saveDocument()" id="btnSaveDoc">💾 Simpan PDF</button>
           </div>
         </div>
 
@@ -207,7 +213,7 @@
     // ==========================================
     // MASUKKAN URL WEB APP ANDA DI BAWAH INI
     // ==========================================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyNkZjMF5bTBfc9bJr7ZxOg8umb45SfgUo_txyWCqZv4xknbYbLqMrJ6BsgXOFVpppvIA/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyT-NHXZD6bPEVtKsu87lZlnoSP6mCfdKIvz5drfvR1ElN06Tq8hAb8uxg6oVbdsIdW3w/exec";
 
     // State Variables
     let allDataGlobal = [];
@@ -314,7 +320,6 @@
       }).join('');
     }
 
-    // --- FUNGSI HAPUS ROW ---
     async function deleteRowAction(rowIndex, btnEl) {
       if(!confirm("⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus permohonan ini secara permanen? Data yang dihapus tidak bisa dikembalikan.")) return;
       
@@ -331,7 +336,7 @@
         
         if (json.status === 'success') {
           showToast(json.message, "success");
-          loadData(); // Segarkan tabel untuk memperbarui baris
+          loadData(); 
         } else throw new Error(json.message);
       } catch (err) {
         showToast(err.message, "error");
@@ -340,7 +345,6 @@
       }
     }
 
-    // --- FUNGSI MODAL EMAIL ---
     function openEmailModal(rowIndex) {
       activeEmailRow = rowIndex;
       const item = allDataGlobal.find(d => d.rowIndex === rowIndex);
@@ -373,7 +377,6 @@
       finally { btn.innerHTML = prevText; btn.disabled = false; }
     }
 
-    // --- FUNGSI WORKSPACE PDF MANUAL ---
     function openWorkspace(rowIndex) {
       state.activeRow = rowIndex;
       document.getElementById('pdfModal').style.display = 'flex';
@@ -387,6 +390,14 @@
       const btnFetch = document.getElementById('btnFetchPdf');
       btnFetch.innerHTML = '📥 Tarik Dokumen PDF'; btnFetch.disabled = false;
       state.pdfjsDoc = null;
+
+      // Set status dropdown sesuai status tabel saat ini
+      const item = allDataGlobal.find(d => d.rowIndex === rowIndex);
+      if(item && item.statusOption) {
+        document.getElementById('pdfStatusSelect').value = item.statusOption;
+      } else {
+        document.getElementById('pdfStatusSelect').value = "Menunggu";
+      }
     }
 
     async function fetchPdfForWorkspace() {
@@ -502,12 +513,25 @@
         let binary = ''; const bytesArr = new Uint8Array(pdfBytes);
         for (let i = 0; i < bytesArr.byteLength; i++) binary += String.fromCharCode(bytesArr[i]);
 
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveSignedPdf', data: { rowIndex: state.activeRow, base64Data: btoa(binary), fileName: state.fileName } }) });
+        const selectedStatus = document.getElementById('pdfStatusSelect').value;
+
+        const res = await fetch(GAS_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ 
+            action: 'saveSignedPdf', 
+            data: { 
+              rowIndex: state.activeRow, 
+              base64Data: btoa(binary), 
+              fileName: state.fileName,
+              statusOption: selectedStatus // Mengirim status yang dipilih
+            } 
+          }) 
+        });
         const json = await res.json();
         if(json.status === 'success') { showToast(json.message, "success"); closeModal(); loadData(); } 
         else throw new Error(json.message);
       } catch (e) { showToast(e.message, "error"); } 
-      finally { btn.innerHTML = `💾 Simpan PDF & Setujui`; btn.disabled = false; }
+      finally { btn.innerHTML = `💾 Simpan PDF`; btn.disabled = false; }
     }
 
     function showToast(msg, type = "success") {
