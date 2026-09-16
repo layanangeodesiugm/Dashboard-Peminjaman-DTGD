@@ -217,6 +217,7 @@
   <script>
     // ==========================================
     // KONFIGURASI URL APPS SCRIPT
+    // PASTIKAN GANTI INI DENGAN URL DEPLOYMENT BARU ANDA
     // ==========================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxQhyxLQJ_YdAChfhHOmxqrpCRvX4I2AvvS49Uldz-0YdDEdKyRuau_ZkoZs7wg9kuYpw/exec";
 
@@ -303,8 +304,22 @@
       }
 
       tbody.innerHTML = data.map((item, i) => {
-        let badgeClass = item.statusOption.toLowerCase().includes('setuju') ? 'disetujui' : 
-                         item.statusOption.toLowerCase().includes('tolak') ? 'ditolak' : 'menunggu';
+        // [PERBAIKAN LOGIKA STATUS ADA DI SINI]
+        let statusLower = (item.statusOption || '').toLowerCase();
+        let badgeClass = 'menunggu';
+
+        if (statusLower.includes('tidak') || statusLower.includes('tolak')) {
+          badgeClass = 'ditolak';
+        } else if (statusLower.includes('setuju')) {
+          badgeClass = 'disetujui';
+        }
+
+        // Tampilkan value keputusan yang rapi
+        let keputusanText = item.keputusan ? item.keputusan : 'Belum Diproses';
+        // jika item.keputusan bisa dibaca sebagai format tanggal
+        if(item.keputusan && !isNaN(Date.parse(item.keputusan))) {
+            keputusanText = new Date(item.keputusan).toLocaleDateString('id-ID');
+        }
 
         return `
           <tr>
@@ -321,7 +336,7 @@
             <td>
               ${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-action" style="display:inline-block; margin-bottom:8px; text-decoration:none;">Lihat PDF</a>` : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>'}
             </td>
-            <td style="font-size: 13px;">${item.keputusan ? new Date(item.keputusan).toLocaleDateString('id-ID') : 'Belum Diproses'}</td>
+            <td style="font-size: 13px;">${keputusanText}</td>
             <td><span class="badge ${badgeClass}">${item.statusOption}</span></td>
             <td>
               <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="openWorkspace(${item.rowIndex})">Proses</button>
