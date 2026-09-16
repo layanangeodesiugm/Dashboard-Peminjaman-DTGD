@@ -76,7 +76,7 @@
     <div class="controls">
       <div class="input-group" style="flex: 2;">
         <label>Pencarian</label>
-        <input type="text" id="searchBox" placeholder="Cari Nama, Fasilitas, atau Instansi..." oninput="debounceSearch()">
+        <input type="text" id="searchBox" placeholder="Cari Nama, Fasilitas..." oninput="debounceSearch()">
       </div>
       <div class="input-group">
         <label>Filter Status</label>
@@ -102,7 +102,7 @@
             <th width="23%">Detail Peminjaman</th>
             <th width="12%">Surat PDF</th>
             <th width="10%">Status</th>
-            <th width="16%">Pesan Keputusan</th>
+            <th width="16%">Keputusan</th>
             <th width="15%">Aksi</th>
           </tr>
         </thead>
@@ -133,15 +133,15 @@
       
       <div class="input-group">
         <label>Email Penerima (To)</label>
-        <input type="text" id="emailToInput" placeholder="Contoh: andi@ugm.ac.id">
+        <input type="text" id="emailToInput">
       </div>
       <div class="input-group">
-        <label>Email CC (Pisahkan dengan koma jika lebih dari satu)</label>
-        <input type="text" id="emailCcInput" placeholder="Contoh: dosen@ugm.ac.id, admin@ugm.ac.id">
+        <label>Email CC (Opsional)</label>
+        <input type="text" id="emailCcInput">
       </div>
       <div class="input-group">
-        <label>Pesan / Keputusan (Muncul di badan email)</label>
-        <textarea id="emailMessageInput" rows="5" placeholder="Tuliskan keputusan seperti 'Permohonan disetujui, silakan ambil kunci...'"></textarea>
+        <label>Pesan / Keputusan (Muncul di badan email & Sheet)</label>
+        <textarea id="emailMessageInput" rows="5" placeholder="Tuliskan catatan persetujuan / penolakan..."></textarea>
       </div>
       
       <div style="display:flex; gap:12px; margin-top: 10px;">
@@ -212,9 +212,9 @@
 
   <script>
     // ==========================================
-    // MASUKKAN URL WEB APP ANDA DI BAWAH INI
+    // MASUKKAN URL WEB APP (DEPLOYMENT) ANDA DI SINI
     // ==========================================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzhfcOw_1WAMu4rK1y7F1C6o1vO8dbh_2O5CERqWxdKZTQ2mDZU-Svh9DlLOtQoFFh0EA/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyG-_983dXqkumlKtlzbLldRiZk3n2BWWg9xxjwAudqB4ozYomNZUmmxGPJ3sZi8RnlPg/exec";
 
     // State Variables
     let allDataGlobal = [];
@@ -273,6 +273,11 @@
       document.getElementById('btnNext').disabled = currentPage === totalPages;
     }
 
+    function changePageData(direction) {
+        currentPage += direction;
+        displayCurrentPage();
+    }
+
     function renderTable(data, startIndex) {
       const tbody = document.getElementById('tableBody');
       if (!data || data.length === 0) {
@@ -286,17 +291,22 @@
         if (statusLower.includes('tidak') || statusLower.includes('tolak')) badgeClass = 'ditolak';
         else if (statusLower.includes('setuju')) badgeClass = 'disetujui';
 
-        // Logika untuk menampilkan keputusan/notifikasi terkirim
         let keputusanHtml = '-';
         if (item.keputusan) {
           keputusanHtml = `
-            <div style="font-size: 12px; color: #047857; font-weight: 500; max-height: 3.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${item.keputusan}">
-              ✅ ${item.keputusan}
+            <div style="font-size: 12px; color: #0f172a; font-weight: 500; max-height: 3.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${item.keputusan}">
+              📝 ${item.keputusan}
             </div>
           `;
         } else {
-          keputusanHtml = `<span style="color: #94a3b8; font-size: 12px;">Belum dikirim</span>`;
+          keputusanHtml = `<span style="color: #94a3b8; font-size: 12px;">Belum ada</span>`;
         }
+        
+        // Deteksi File Apakah ini asli atau "Telah Di-save"
+        const isSigned = item.suratUrl.includes("1KJ658U0IIREnaBJgBuu4EP2J2lLr-cBd") || item.suratUrl.includes("Signed");
+        const pdfBtnHtml = item.suratUrl 
+            ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:12px; text-decoration:none;">📄 ${isSigned ? 'PDF (Telah TTD)' : 'PDF (Asli)'}</a>` 
+            : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>';
 
         return `
           <tr>
@@ -307,12 +317,10 @@
               <div style="font-size: 12px; color: var(--text-muted);">📞 ${item.noHp || '-'}</div>
             </td>
             <td>
-              <div style="font-weight: 500;">${item.detailFasilitas || item.jenisFasilitas || '-'}</div>
-              <div style="font-size: 12px; color: var(--text-muted);">📅 ${item.tglMulai || '?'} s/d ${item.tglSelesai || '?'}</div>
+              <div style="font-weight: 500;">${item.detailFasilitas !== '-' ? item.detailFasilitas : item.jenisFasilitas}</div>
+              <div style="font-size: 12px; color: var(--text-muted);">📅 ${item.tglMulai} s/d ${item.tglSelesai}</div>
             </td>
-            <td>
-              ${item.suratUrl ? `<a href="${item.suratUrl}" target="_blank" class="btn btn-outline" style="padding:4px 8px; font-size:12px; text-decoration:none;">📄 Lihat PDF</a>` : '<span style="color:#94a3b8; font-size: 12px;">Tanpa Surat</span>'}
-            </td>
+            <td>${pdfBtnHtml}</td>
             <td><span class="badge ${badgeClass}">${item.statusOption}</span></td>
             <td>${keputusanHtml}</td>
             <td style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -326,28 +334,16 @@
     }
 
     async function deleteRowAction(rowIndex, btnEl) {
-      if(!confirm("⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus permohonan ini secara permanen? Data yang dihapus tidak bisa dikembalikan.")) return;
-      
+      if(!confirm("⚠️ PERINGATAN: Apakah Anda yakin ingin menghapus permohonan ini secara permanen?")) return;
       const originalText = btnEl.innerHTML;
-      btnEl.innerHTML = `<span class="spinner" style="width:12px; height:12px;"></span>`;
-      btnEl.disabled = true;
+      btnEl.innerHTML = `<span class="spinner" style="width:12px; height:12px;"></span>`; btnEl.disabled = true;
 
       try {
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'deleteRow', data: { rowIndex: rowIndex } })
-        });
+        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRow', data: { rowIndex: rowIndex } }) });
         const json = await res.json();
-        
-        if (json.status === 'success') {
-          showToast(json.message, "success");
-          loadData(); 
-        } else throw new Error(json.message);
-      } catch (err) {
-        showToast(err.message, "error");
-        btnEl.innerHTML = originalText;
-        btnEl.disabled = false;
-      }
+        if (json.status === 'success') { showToast(json.message, "success"); loadData(); } 
+        else throw new Error(json.message);
+      } catch (err) { showToast(err.message, "error"); btnEl.innerHTML = originalText; btnEl.disabled = false; }
     }
 
     function openEmailModal(rowIndex) {
@@ -356,8 +352,7 @@
       if(item) {
         document.getElementById('emailToInput').value = item.email || '';
         document.getElementById('emailCcInput').value = item.emailCc || '';
-        let defaultMsg = item.keputusan || '';
-        document.getElementById('emailMessageInput').value = defaultMsg;
+        document.getElementById('emailMessageInput').value = item.keputusan || '';
       }
       document.getElementById('emailModal').style.display = 'flex';
     }
@@ -485,7 +480,6 @@
     }
     makeDraggable(document.getElementById('dragSig')); makeDraggable(document.getElementById('dragText'));
 
-    // --- FUNGSI YANG SUDAH DIPERBAIKI ---
     async function saveDocument() {
       if(!state.pdfjsDoc) return showToast("Dokumen PDF belum dimuat!", "error");
       const btn = document.getElementById('btnSaveDoc');
@@ -496,55 +490,35 @@
         const pdfDoc = await PDFDocument.load(state.pdfBuffer);
         const page = pdfDoc.getPages()[state.currentPdfPage - 1];
         const canvas = document.getElementById('pdfCanvas');
-        
-        // Skala perbedaan ukuran asli PDF dengan ukuran Canvas di layar
         const sX = page.getWidth() / canvas.width; 
         const sY = page.getHeight() / canvas.height;
+        const canvasRect = canvas.getBoundingClientRect();
 
-        // Kita ambil jarak pasti/offset dari canvas itu sendiri
-        const canvasLeft = canvas.offsetLeft;
-        const canvasTop = canvas.offsetTop;
-
-        // 1. Proses Tanda Tangan
         const sigEl = document.getElementById('dragSig');
         if (sigEl.style.display !== 'none') {
-          // Dapatkan titik koordinat relatif gambar terhadap Canvas (bukan terhadap layar/kontainer)
-          const relX = sigEl.offsetLeft - canvasLeft;
-          const relY = sigEl.offsetTop - canvasTop;
-
+          const sigRect = sigEl.getBoundingClientRect();
+          const relX = sigRect.left - canvasRect.left;
+          const relY = sigRect.top - canvasRect.top;
           const imgEl = document.getElementById('imgSig');
           const imgBytes = await fetch(imgEl.src).then(r => r.arrayBuffer());
           const img = imgEl.src.includes('png') ? await pdfDoc.embedPng(imgBytes) : await pdfDoc.embedJpg(imgBytes);
           
-          // Rumus: Tinggi PDF - (Koordinat Y relatif * skala) - Tinggi Gambar di PDF
-          const pdfWidth = sigEl.offsetWidth * sX;
-          const pdfHeight = sigEl.offsetHeight * sY;
+          const pdfWidth = sigRect.width * sX;
+          const pdfHeight = sigRect.height * sY;
           const finalY = page.getHeight() - (relY * sY) - pdfHeight;
 
-          page.drawImage(img, { 
-            x: relX * sX, 
-            y: finalY, 
-            width: pdfWidth, 
-            height: pdfHeight 
-          });
+          page.drawImage(img, { x: relX * sX, y: finalY, width: pdfWidth, height: pdfHeight });
         }
 
-        // 2. Proses Teks
         const txtEl = document.getElementById('dragText');
         if (txtEl.style.display !== 'none') {
-          // Dapatkan titik koordinat relatif teks terhadap Canvas
-          const relX = txtEl.offsetLeft - canvasLeft;
-          const relY = txtEl.offsetTop - canvasTop;
-          
+          const txtRect = txtEl.getBoundingClientRect();
+          const relX = txtRect.left - canvasRect.left;
+          const relY = txtRect.top - canvasRect.top;
           const size = parseFloat(document.getElementById('scaleText').value) * sY;
           const textLines = txtEl.innerText.split('\n');
           textLines.forEach((line, idx) => {
-            page.drawText(line, { 
-              x: relX * sX, 
-              y: page.getHeight() - (relY * sY) - (size * 0.85) - (idx * size * 1.2), 
-              size: size, 
-              color: rgb(0,0,0) 
-            });
+            page.drawText(line, { x: relX * sX, y: page.getHeight() - (relY * sY) - (size * 0.85) - (idx * size * 1.2), size: size, color: rgb(0,0,0) });
           });
         }
 
